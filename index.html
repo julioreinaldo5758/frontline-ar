@@ -17,14 +17,13 @@
       height: 100vh;
     }
 
-    /* ── AR container lives behind everything ── */
     #ar-container {
       position: fixed;
       inset: 0;
       z-index: 0;
     }
 
-    /* ── Shared overlay shell ───────────────── */
+    /* ── Overlay shell ──────────────────────── */
     .overlay {
       position: fixed;
       inset: 0;
@@ -40,299 +39,129 @@
       pointer-events: none;
       transition: opacity 0.4s ease;
     }
-    .overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .overlay.active { opacity: 1; pointer-events: auto; }
 
-    /* ─────────────────────────────────────────
-       SPLASH SCREEN
-    ───────────────────────────────────────── */
-    .splash-logo {
-      font-size: 2.6rem;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 7px;
-      text-shadow: 0 3px 14px rgba(0,0,0,0.18);
-    }
-    .splash-sub {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.8);
-      letter-spacing: 3px;
-      margin-top: 6px;
-      margin-bottom: 28px;
-    }
-    .splash-horse {
-      font-size: 5.5rem;
-      line-height: 1;
-      animation: float 3s ease-in-out infinite;
-      margin-bottom: 24px;
-    }
+    /* ── Splash ─────────────────────────────── */
+    .splash-logo { font-size: 2.6rem; font-weight: 900; color: #fff; letter-spacing: 7px; text-shadow: 0 3px 14px rgba(0,0,0,0.18); }
+    .splash-sub  { font-size: 0.72rem; color: rgba(255,255,255,0.8); letter-spacing: 3px; margin-top: 6px; margin-bottom: 28px; }
+    .splash-horse { font-size: 5.5rem; line-height: 1; animation: float 3s ease-in-out infinite; margin-bottom: 24px; }
     @keyframes float {
       0%, 100% { transform: translateY(0) rotate(-4deg); }
       50%       { transform: translateY(-14px) rotate(4deg); }
     }
-    .splash-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 10px;
-    }
-    .splash-desc {
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.82);
-      line-height: 1.65;
-      max-width: 240px;
-      margin-bottom: 36px;
-    }
+    .splash-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .splash-desc  { font-size: 0.78rem; color: rgba(255,255,255,0.82); line-height: 1.65; max-width: 240px; margin-bottom: 36px; }
     .btn-start {
-      background: #fff;
-      color: #c9205a;
-      border: none;
-      padding: 16px 40px;
-      border-radius: 99px;
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
+      background: #fff; color: #c9205a; border: none;
+      padding: 16px 40px; border-radius: 99px;
+      font-size: 1rem; font-weight: 800; cursor: pointer;
       box-shadow: 0 8px 28px rgba(0,0,0,0.14);
       transition: transform 0.15s, box-shadow 0.15s;
-      letter-spacing: 0.3px;
     }
-    .btn-start:active {
-      transform: scale(0.96);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-    }
-    .splash-note {
-      font-size: 0.64rem;
-      color: rgba(255,255,255,0.55);
-      margin-top: 14px;
-    }
+    .btn-start:active { transform: scale(0.96); box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+    .btn-start:disabled { opacity: 0.55; cursor: not-allowed; }
+    .splash-note { font-size: 0.64rem; color: rgba(255,255,255,0.55); margin-top: 14px; }
 
-    /* ─────────────────────────────────────────
-       LOADING SCREEN
-    ───────────────────────────────────────── */
-    .loading-logo {
-      font-size: 1.9rem;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 6px;
-      margin-bottom: 36px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    }
-    .steps {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      width: 100%;
-      max-width: 270px;
-    }
-    .step {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-size: 0.84rem;
-      color: rgba(255,255,255,0.45);
-      transition: color 0.3s;
-    }
+    /* ── Loading ────────────────────────────── */
+    .loading-logo { font-size: 1.9rem; font-weight: 900; color: #fff; letter-spacing: 6px; margin-bottom: 36px; text-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    .steps { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 270px; }
+    .step { display: flex; align-items: center; gap: 14px; font-size: 0.84rem; color: rgba(255,255,255,0.4); transition: color 0.3s; }
     .step.active { color: #fff; font-weight: 600; }
     .step.done   { color: rgba(255,255,255,0.8); }
-
     .step-dot {
-      width: 26px; height: 26px;
-      border-radius: 50%;
+      width: 26px; height: 26px; border-radius: 50%;
       border: 2px solid rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.3s;
-      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.3s; position: relative;
     }
     .step.active .step-dot { border-color: rgba(255,255,255,0.85); }
     .step.active .step-dot::before {
-      content: '';
-      width: 10px; height: 10px;
-      border: 2px solid transparent;
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.75s linear infinite;
-      display: block;
+      content: ''; width: 10px; height: 10px;
+      border: 2px solid transparent; border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.75s linear infinite; display: block;
     }
-    .step.done .step-dot {
-      border-color: rgba(255,255,255,0.6);
-      background: rgba(255,255,255,0.15);
-    }
+    .step.done .step-dot { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.15); }
     .step.done .step-dot::before {
-      content: '✓';
-      animation: none;
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 800;
-      width: auto; height: auto;
-      border: none;
-      display: block;
+      content: '✓'; animation: none; color: #fff;
+      font-size: 0.72rem; font-weight: 800; width: auto; height: auto; border: none; display: block;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ─────────────────────────────────────────
-       ERROR SCREEN
-    ───────────────────────────────────────── */
+    /* ── Error ──────────────────────────────── */
     .error-icon { font-size: 3.2rem; margin-bottom: 8px; }
-    .error-logo {
-      font-size: 1.5rem;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 5px;
-      margin-bottom: 20px;
-    }
-    .error-msg {
-      font-size: 0.9rem;
-      color: #fff;
-      font-weight: 600;
-      line-height: 1.6;
-      max-width: 270px;
-      margin-bottom: 10px;
-    }
-    .error-hint {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.62);
-      max-width: 260px;
-      line-height: 1.55;
-      margin-bottom: 28px;
-    }
-    .btn-retry {
-      background: rgba(255,255,255,0.18);
-      color: #fff;
+    .error-logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: 5px; margin-bottom: 20px; }
+    .error-msg  { font-size: 0.9rem; color: #fff; font-weight: 600; line-height: 1.6; max-width: 270px; margin-bottom: 10px; }
+    .error-hint { font-size: 0.72rem; color: rgba(255,255,255,0.62); max-width: 260px; line-height: 1.55; margin-bottom: 28px; }
+    .btn-retry  {
+      background: rgba(255,255,255,0.18); color: #fff;
       border: 2px solid rgba(255,255,255,0.5);
-      padding: 13px 36px;
-      border-radius: 99px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
+      padding: 13px 36px; border-radius: 99px;
+      font-size: 0.9rem; font-weight: 700; cursor: pointer;
       transition: background 0.2s;
     }
     .btn-retry:active { background: rgba(255,255,255,0.32); }
 
-    /* ─────────────────────────────────────────
-       AR UI LAYER  (header + scan hint)
-    ───────────────────────────────────────── */
-    #ar-ui {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.6s ease;
-    }
+    /* ── AR UI layer ────────────────────────── */
+    #ar-ui { position: fixed; inset: 0; z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.6s ease; }
     #ar-ui.show { opacity: 1; }
-
     #ar-header {
-      position: absolute;
-      inset: 0 0 auto 0;
+      position: absolute; inset: 0 0 auto 0;
       padding: 22px 16px 44px;
       background: linear-gradient(to bottom, rgba(255,100,155,0.72) 0%, transparent 100%);
       text-align: center;
     }
     .brand   { font-size: 1.45rem; font-weight: 900; color: #fff; letter-spacing: 5px; text-shadow: 0 2px 8px rgba(0,0,0,0.22); }
     .tagline { font-size: 0.67rem; color: rgba(255,255,255,0.82); letter-spacing: 2px; margin-top: 3px; }
-
-    #scan-hint {
-      position: absolute;
-      inset: auto 0 36px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      transition: opacity 0.4s ease;
-    }
+    #scan-hint { position: absolute; inset: auto 0 36px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: opacity 0.4s ease; }
     .scan-pill {
-      background: rgba(210, 45, 95, 0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: #fff;
-      font-size: 0.84rem;
-      font-weight: 700;
-      padding: 11px 26px;
-      border-radius: 99px;
+      background: rgba(210,45,95,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      color: #fff; font-size: 0.84rem; font-weight: 700;
+      padding: 11px 26px; border-radius: 99px;
       box-shadow: 0 4px 16px rgba(210,45,95,0.35);
       animation: bob 2.2s ease-in-out infinite;
     }
-    .scan-sub {
-      font-size: 0.67rem;
-      color: rgba(255,255,255,0.72);
-      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
-    }
-    @keyframes bob {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-5px); }
-    }
+    .scan-sub { font-size: 0.67rem; color: rgba(255,255,255,0.72); text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-    /* ─────────────────────────────────────────
-       GREETING POPUP
-    ───────────────────────────────────────── */
+    /* ── Greeting popup ─────────────────────── */
     #greeting {
-      position: fixed;
-      inset: 0;
-      z-index: 15;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s ease;
+      position: fixed; inset: 0; z-index: 15;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
     }
     #greeting.show { opacity: 1; pointer-events: auto; }
-
     .card {
       background: linear-gradient(150deg, #fff8fa 0%, #ffe4ee 100%);
-      border: 1.5px solid #ffbcd0;
-      border-radius: 26px;
-      padding: 30px 32px 24px;
-      max-width: 305px;
-      width: 88%;
+      border: 1.5px solid #ffbcd0; border-radius: 26px;
+      padding: 30px 32px 24px; max-width: 305px; width: 88%;
       text-align: center;
       box-shadow: 0 16px 48px rgba(210,45,95,0.22), 0 4px 12px rgba(0,0,0,0.1);
       transform: scale(0.88) translateY(12px);
       transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
     }
     #greeting.show .card { transform: scale(1) translateY(0); }
-
-    .card-icon  { font-size: 2.6rem; display: block; margin-bottom: 10px; }
-    .card h2    { font-size: 1.18rem; color: #c02060; font-weight: 800; margin-bottom: 8px; }
-    .card p     { font-size: 0.8rem; color: #7a5570; line-height: 1.65; }
-    .card-divider   { width: 40px; height: 2px; background: #ffbcd0; border-radius: 2px; margin: 14px auto; }
-    .card-brand { font-size: 0.68rem; font-weight: 800; color: #e07095; letter-spacing: 3px; }
-
+    .card-icon   { font-size: 2.6rem; display: block; margin-bottom: 10px; }
+    .card h2     { font-size: 1.18rem; color: #c02060; font-weight: 800; margin-bottom: 8px; }
+    .card p      { font-size: 0.8rem; color: #7a5570; line-height: 1.65; }
+    .card-divider { width: 40px; height: 2px; background: #ffbcd0; border-radius: 2px; margin: 14px auto; }
+    .card-brand  { font-size: 0.68rem; font-weight: 800; color: #e07095; letter-spacing: 3px; }
     .btn-close {
-      margin-top: 18px;
-      background: linear-gradient(135deg, #ff7aaa, #d92060);
-      color: #fff;
-      border: none;
-      padding: 11px 32px;
-      border-radius: 99px;
-      font-size: 0.84rem;
-      font-weight: 700;
-      cursor: pointer;
+      margin-top: 18px; background: linear-gradient(135deg, #ff7aaa, #d92060);
+      color: #fff; border: none; padding: 11px 32px; border-radius: 99px;
+      font-size: 0.84rem; font-weight: 700; cursor: pointer;
       box-shadow: 0 5px 16px rgba(217,32,96,0.38);
       transition: transform 0.14s ease, box-shadow 0.14s ease;
-      display: block;
-      width: 100%;
+      display: block; width: 100%;
     }
-    .btn-close:active {
-      transform: scale(0.96);
-      box-shadow: 0 2px 8px rgba(217,32,96,0.25);
-    }
+    .btn-close:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(217,32,96,0.25); }
   </style>
 </head>
 <body>
 
-  <!-- AR viewport (always behind) -->
   <div id="ar-container"></div>
 
-  <!-- ── Splash ─────────────────────────────── -->
+  <!-- Splash -->
   <div id="splash" class="overlay active">
     <div class="splash-logo">FRONTLINE</div>
     <div class="splash-sub">✦ Baby Souvenir ✦</div>
@@ -343,26 +172,23 @@
     <div class="splash-note">Membutuhkan akses kamera</div>
   </div>
 
-  <!-- ── Loading ────────────────────────────── -->
+  <!-- Loading -->
   <div id="loading" class="overlay">
     <div class="loading-logo">FRONTLINE</div>
     <div class="steps">
       <div class="step" id="step-lib">
-        <div class="step-dot"></div>
-        <span>Memuat library AR</span>
+        <div class="step-dot"></div><span>Memuat library AR</span>
       </div>
       <div class="step" id="step-asset">
-        <div class="step-dot"></div>
-        <span>Memeriksa aset</span>
+        <div class="step-dot"></div><span>Memeriksa aset</span>
       </div>
       <div class="step" id="step-cam">
-        <div class="step-dot"></div>
-        <span>Menyiapkan kamera</span>
+        <div class="step-dot"></div><span>Menyiapkan kamera</span>
       </div>
     </div>
   </div>
 
-  <!-- ── Error ──────────────────────────────── -->
+  <!-- Error -->
   <div id="error" class="overlay">
     <div class="error-icon">⚠️</div>
     <div class="error-logo">FRONTLINE</div>
@@ -371,7 +197,7 @@
     <button class="btn-retry" id="btn-retry">↺ Coba Lagi</button>
   </div>
 
-  <!-- ── AR UI layer ───────────────────────── -->
+  <!-- AR UI -->
   <div id="ar-ui">
     <div id="ar-header">
       <div class="brand">FRONTLINE</div>
@@ -383,7 +209,7 @@
     </div>
   </div>
 
-  <!-- ── Greeting popup ────────────────────── -->
+  <!-- Greeting popup -->
   <div id="greeting">
     <div class="card">
       <span class="card-icon">🐴</span>
@@ -399,22 +225,14 @@
     </div>
   </div>
 
-  <!-- Audio -->
   <audio id="greeting-audio" preload="auto">
     <source src="./assets/audio/greeting.mp3" type="audio/mpeg">
   </audio>
-
-  <!-- Three.js r148 — versi terakhir yang masih bundle examples/js via CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.148.0/examples/js/loaders/GLTFLoader.js"></script>
-  <!-- MindAR image-tracking (Three.js edition) -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
 
   <script>
     (() => {
       'use strict';
 
-      /* ── DOM refs ─────────────────────────── */
       const splashEl    = document.getElementById('splash');
       const loadingEl   = document.getElementById('loading');
       const errorEl     = document.getElementById('error');
@@ -427,59 +245,87 @@
       const stepLib     = document.getElementById('step-lib');
       const stepAsset   = document.getElementById('step-asset');
       const stepCam     = document.getElementById('step-cam');
+      const btnStart    = document.getElementById('btn-start');
 
-      let hasGreeted  = false;
-      let arInstance  = null;
+      let hasGreeted = false;
+      let arInstance = null;
+      let THREE      = null;
+      let GLTFLoader = null;
 
-      /* ── Overlay state machine ───────────── */
+      /* ── Screen state ───────────────────── */
       function showScreen(id) {
         [splashEl, loadingEl, errorEl].forEach(el => el.classList.remove('active'));
         if (id) document.getElementById(id).classList.add('active');
       }
-
       function setStep(el, state) {
         el.className = 'step' + (state ? ' ' + state : '');
       }
-
-      function showError(msg, hint = '') {
+      function showError(msg, hint) {
         errorMsgEl.textContent  = msg;
-        errorHintEl.textContent = hint;
+        errorHintEl.textContent = hint || '';
         showScreen('error');
       }
 
-      /* Yield to browser paint between loading steps */
-      const paint = () => new Promise(r => setTimeout(r, 90));
+      const paint = () => new Promise(r => setTimeout(r, 80));
 
-      /* ── Main AR flow ─────────────────────── */
+      /* ── Dynamic script loader ──────────── */
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const s    = document.createElement('script');
+          s.src      = src;
+          s.onload   = resolve;
+          s.onerror  = () => reject(new Error('Gagal load: ' + src));
+          document.head.appendChild(s);
+        });
+      }
+
+      /* ── Main AR flow ───────────────────── */
       async function startAR() {
         showScreen('loading');
         [stepLib, stepAsset, stepCam].forEach(s => setStep(s, ''));
 
-        /* Step 1 — library check ─────────────── */
+        /* ── Step 1: Load THREE + GLTFLoader + MindAR ── */
         setStep(stepLib, 'active');
         await paint();
 
-        if (!window.MINDAR || !window.THREE) {
+        try {
+          if (!THREE) {
+            // Pakai jsm path — selalu ada di semua versi Three.js modern
+            const base = 'https://cdn.jsdelivr.net/npm/three@0.160.0';
+            const tm   = await import(base + '/build/three.module.js');
+            const gm   = await import(base + '/examples/jsm/loaders/GLTFLoader.js');
+            THREE      = tm;
+            GLTFLoader = gm.GLTFLoader;
+            // Expose ke global SEBELUM MindAR load (MindAR butuh window.THREE)
+            window.THREE = THREE;
+          }
+
+          if (!window.MINDAR) {
+            await loadScript('https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js');
+          }
+        } catch (e) {
+          console.error('[Frontline] Library error:', e);
           return showError(
             'Gagal memuat library AR.',
             'Periksa koneksi internet lalu muat ulang halaman.'
           );
         }
-        if (!window.THREE.GLTFLoader) {
+
+        if (!window.MINDAR) {
           return showError(
-            'GLTFLoader tidak tersedia.',
-            'Periksa koneksi internet atau coba browser lain.'
+            'Library AR tidak tersedia.',
+            'Coba gunakan Chrome atau Safari versi terbaru.'
           );
         }
         setStep(stepLib, 'done');
 
-        /* Step 2 — asset reachability ───────── */
+        /* ── Step 2: Verify marker file ─────── */
         setStep(stepAsset, 'active');
         await paint();
 
         try {
-          const markerCheck = window.location.origin + '/assets/targets/marker.mind';
-          const r = await fetch(markerCheck, { method: 'HEAD' });
+          const markerUrl = window.location.origin + '/assets/targets/marker.mind';
+          const r = await fetch(markerUrl, { method: 'HEAD' });
           if (!r.ok) throw new Error('HTTP ' + r.status);
         } catch {
           return showError(
@@ -489,12 +335,11 @@
         }
         setStep(stepAsset, 'done');
 
-        /* Step 3 — camera + MindAR ──────────── */
+        /* ── Step 3: Camera + MindAR ─────────── */
         setStep(stepCam, 'active');
         await paint();
 
         try {
-          // Absolute URL wajib — relative URL gagal di-resolve inside Web Worker
           const markerUrl = window.location.origin + '/assets/targets/marker.mind';
 
           arInstance = new window.MINDAR.IMAGE.MindARThree({
@@ -512,7 +357,7 @@
           /* Lighting */
           scene.add(new THREE.AmbientLight(0xffeef5, 2.2));
 
-          const keyLight = new THREE.DirectionalLight(0xfff0f5, 2.8);
+          const keyLight  = new THREE.DirectionalLight(0xfff0f5, 2.8);
           keyLight.position.set(1, 3, 2);
           scene.add(keyLight);
 
@@ -520,7 +365,7 @@
           fillLight.position.set(-2, -0.5, 1.5);
           scene.add(fillLight);
 
-          const rimLight = new THREE.DirectionalLight(0xffffff, 0.9);
+          const rimLight  = new THREE.DirectionalLight(0xffffff, 0.9);
           rimLight.position.set(0, -1.5, -2);
           scene.add(rimLight);
 
@@ -528,7 +373,7 @@
           const anchor = arInstance.addAnchor(0);
 
           /* Load GLB */
-          const loader = new THREE.GLTFLoader();
+          const loader = new GLTFLoader();
           let horseModel = null;
 
           loader.load(
@@ -567,15 +412,13 @@
               setTimeout(() => greetingEl.classList.add('show'), 750);
             }
           };
-          anchor.onTargetLost = () => {
-            scanHintEl.style.opacity = '1';
-          };
+          anchor.onTargetLost = () => { scanHintEl.style.opacity = '1'; };
 
           document.getElementById('btn-close').addEventListener('click', () => {
             greetingEl.classList.remove('show');
           });
 
-          /* Animation loop */
+          /* Animation */
           let t = 0;
           renderer.setAnimationLoop(() => {
             if (horseModel) {
@@ -590,34 +433,34 @@
 
         } catch (err) {
           const msg = (err?.message || err?.name || '').toLowerCase();
+          console.error('[Frontline] AR error:', err);
 
-          if (msg.includes('notallowederror') || msg.includes('permission') || msg.includes('denied')) {
+          if (msg.includes('notallowed') || msg.includes('permission') || msg.includes('denied')) {
             return showError(
               'Izin kamera ditolak.',
-              'Buka pengaturan browser → Izin Situs → aktifkan Kamera untuk halaman ini, lalu coba lagi.'
+              'Buka pengaturan browser → Izin Situs → aktifkan Kamera, lalu coba lagi.'
             );
           }
           if (msg.includes('notfound') || msg.includes('devicenotfound')) {
             return showError(
               'Kamera tidak terdeteksi.',
-              'Pastikan perangkat memiliki kamera dan tidak sedang dipakai aplikasi lain.'
+              'Pastikan perangkat memiliki kamera dan tidak dipakai aplikasi lain.'
             );
           }
-          console.error('[Frontline] AR start error:', err);
           return showError(
-            'Gagal memulai AR.',
+            'Gagal memulai kamera.',
             'Coba muat ulang halaman. Pastikan browser mengizinkan kamera.'
           );
         }
 
-        /* All good — reveal AR */
+        /* ── Success ───────────────────────── */
         setStep(stepCam, 'done');
         showScreen(null);
         arUiEl.classList.add('show');
       }
 
       /* ── Button handlers ─────────────────── */
-      document.getElementById('btn-start').addEventListener('click', startAR);
+      btnStart.addEventListener('click', startAR);
 
       document.getElementById('btn-retry').addEventListener('click', () => {
         if (arInstance) {
