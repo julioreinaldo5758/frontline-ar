@@ -8,36 +8,15 @@
   <title>Frontline — Baby AR Experience</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background: #1a0010;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    #ar-container {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-    }
+    body { background: #1a0010; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
 
     /* ── Overlay shell ──────────────────────── */
     .overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 20;
+      position: fixed; inset: 0; z-index: 20;
       background: linear-gradient(160deg, #ff6b9d 0%, #ffacc7 48%, #fff0f5 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 28px;
-      text-align: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 28px; text-align: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
     }
     .overlay.active { opacity: 1; pointer-events: auto; }
 
@@ -45,34 +24,27 @@
     .splash-logo { font-size: 2.6rem; font-weight: 900; color: #fff; letter-spacing: 7px; text-shadow: 0 3px 14px rgba(0,0,0,0.18); }
     .splash-sub  { font-size: 0.72rem; color: rgba(255,255,255,0.8); letter-spacing: 3px; margin-top: 6px; margin-bottom: 28px; }
     .splash-horse { font-size: 5.5rem; line-height: 1; animation: float 3s ease-in-out infinite; margin-bottom: 24px; }
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotate(-4deg); }
-      50%       { transform: translateY(-14px) rotate(4deg); }
-    }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-14px) rotate(4deg); } }
     .splash-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
     .splash-desc  { font-size: 0.78rem; color: rgba(255,255,255,0.82); line-height: 1.65; max-width: 240px; margin-bottom: 36px; }
     .btn-start {
-      background: #fff; color: #c9205a; border: none;
-      padding: 16px 40px; border-radius: 99px;
-      font-size: 1rem; font-weight: 800; cursor: pointer;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.14);
-      transition: transform 0.15s, box-shadow 0.15s;
+      background: #fff; color: #c9205a; border: none; padding: 16px 40px;
+      border-radius: 99px; font-size: 1rem; font-weight: 800; cursor: pointer;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.14); transition: transform 0.15s, box-shadow 0.15s;
     }
-    .btn-start:active { transform: scale(0.96); box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+    .btn-start:active  { transform: scale(0.96); box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
     .btn-start:disabled { opacity: 0.55; cursor: not-allowed; }
     .splash-note { font-size: 0.64rem; color: rgba(255,255,255,0.55); margin-top: 14px; }
 
     /* ── Loading ────────────────────────────── */
-    .loading-logo { font-size: 1.9rem; font-weight: 900; color: #fff; letter-spacing: 6px; margin-bottom: 36px; text-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+    .loading-logo { font-size: 1.9rem; font-weight: 900; color: #fff; letter-spacing: 6px; margin-bottom: 36px; }
     .steps { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 270px; }
     .step { display: flex; align-items: center; gap: 14px; font-size: 0.84rem; color: rgba(255,255,255,0.4); transition: color 0.3s; }
     .step.active { color: #fff; font-weight: 600; }
     .step.done   { color: rgba(255,255,255,0.8); }
     .step-dot {
-      width: 26px; height: 26px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all 0.3s; position: relative;
+      width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s;
     }
     .step.active .step-dot { border-color: rgba(255,255,255,0.85); }
     .step.active .step-dot::before {
@@ -81,85 +53,47 @@
       border-radius: 50%; animation: spin 0.75s linear infinite; display: block;
     }
     .step.done .step-dot { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.15); }
-    .step.done .step-dot::before {
-      content: '✓'; animation: none; color: #fff;
-      font-size: 0.72rem; font-weight: 800; width: auto; height: auto; border: none; display: block;
-    }
+    .step.done .step-dot::before { content: '✓'; animation: none; color: #fff; font-size: 0.72rem; font-weight: 800; width: auto; height: auto; border: none; display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Error ──────────────────────────────── */
     .error-icon { font-size: 3.2rem; margin-bottom: 8px; }
     .error-logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: 5px; margin-bottom: 20px; }
-    .error-msg  { font-size: 0.9rem; color: #fff; font-weight: 600; line-height: 1.6; max-width: 270px; margin-bottom: 10px; }
-    .error-hint { font-size: 0.72rem; color: rgba(255,255,255,0.62); max-width: 260px; line-height: 1.55; margin-bottom: 28px; }
-    .btn-retry  {
-      background: rgba(255,255,255,0.18); color: #fff;
-      border: 2px solid rgba(255,255,255,0.5);
-      padding: 13px 36px; border-radius: 99px;
-      font-size: 0.9rem; font-weight: 700; cursor: pointer;
-      transition: background 0.2s;
-    }
+    .error-msg  { font-size: 0.9rem; color: #fff; font-weight: 600; line-height: 1.6; max-width: 270px; margin-bottom: 8px; }
+    .error-hint { font-size: 0.7rem; color: rgba(255,255,255,0.65); max-width: 270px; line-height: 1.55; margin-bottom: 8px; }
+    .error-debug { font-size: 0.6rem; color: rgba(255,255,255,0.4); max-width: 280px; word-break: break-all; line-height: 1.4; margin-bottom: 20px; font-family: monospace; }
+    .btn-retry { background: rgba(255,255,255,0.18); color: #fff; border: 2px solid rgba(255,255,255,0.5); padding: 13px 36px; border-radius: 99px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
     .btn-retry:active { background: rgba(255,255,255,0.32); }
 
     /* ── AR UI layer ────────────────────────── */
     #ar-ui { position: fixed; inset: 0; z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.6s ease; }
     #ar-ui.show { opacity: 1; }
-    #ar-header {
-      position: absolute; inset: 0 0 auto 0;
-      padding: 22px 16px 44px;
-      background: linear-gradient(to bottom, rgba(255,100,155,0.72) 0%, transparent 100%);
-      text-align: center;
-    }
+    #ar-header { position: absolute; inset: 0 0 auto 0; padding: 22px 16px 44px; background: linear-gradient(to bottom, rgba(255,100,155,0.72) 0%, transparent 100%); text-align: center; }
     .brand   { font-size: 1.45rem; font-weight: 900; color: #fff; letter-spacing: 5px; text-shadow: 0 2px 8px rgba(0,0,0,0.22); }
     .tagline { font-size: 0.67rem; color: rgba(255,255,255,0.82); letter-spacing: 2px; margin-top: 3px; }
     #scan-hint { position: absolute; inset: auto 0 36px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: opacity 0.4s ease; }
-    .scan-pill {
-      background: rgba(210,45,95,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      color: #fff; font-size: 0.84rem; font-weight: 700;
-      padding: 11px 26px; border-radius: 99px;
-      box-shadow: 0 4px 16px rgba(210,45,95,0.35);
-      animation: bob 2.2s ease-in-out infinite;
-    }
+    .scan-pill { background: rgba(210,45,95,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; font-size: 0.84rem; font-weight: 700; padding: 11px 26px; border-radius: 99px; box-shadow: 0 4px 16px rgba(210,45,95,0.35); animation: bob 2.2s ease-in-out infinite; }
     .scan-sub { font-size: 0.67rem; color: rgba(255,255,255,0.72); text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
     @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
     /* ── Greeting popup ─────────────────────── */
-    #greeting {
-      position: fixed; inset: 0; z-index: 15;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.3); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-      opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
-    }
+    #greeting { position: fixed; inset: 0; z-index: 15; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
     #greeting.show { opacity: 1; pointer-events: auto; }
-    .card {
-      background: linear-gradient(150deg, #fff8fa 0%, #ffe4ee 100%);
-      border: 1.5px solid #ffbcd0; border-radius: 26px;
-      padding: 30px 32px 24px; max-width: 305px; width: 88%;
-      text-align: center;
-      box-shadow: 0 16px 48px rgba(210,45,95,0.22), 0 4px 12px rgba(0,0,0,0.1);
-      transform: scale(0.88) translateY(12px);
-      transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-    }
+    .card { background: linear-gradient(150deg, #fff8fa 0%, #ffe4ee 100%); border: 1.5px solid #ffbcd0; border-radius: 26px; padding: 30px 32px 24px; max-width: 305px; width: 88%; text-align: center; box-shadow: 0 16px 48px rgba(210,45,95,0.22), 0 4px 12px rgba(0,0,0,0.1); transform: scale(0.88) translateY(12px); transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
     #greeting.show .card { transform: scale(1) translateY(0); }
     .card-icon   { font-size: 2.6rem; display: block; margin-bottom: 10px; }
     .card h2     { font-size: 1.18rem; color: #c02060; font-weight: 800; margin-bottom: 8px; }
     .card p      { font-size: 0.8rem; color: #7a5570; line-height: 1.65; }
     .card-divider { width: 40px; height: 2px; background: #ffbcd0; border-radius: 2px; margin: 14px auto; }
     .card-brand  { font-size: 0.68rem; font-weight: 800; color: #e07095; letter-spacing: 3px; }
-    .btn-close {
-      margin-top: 18px; background: linear-gradient(135deg, #ff7aaa, #d92060);
-      color: #fff; border: none; padding: 11px 32px; border-radius: 99px;
-      font-size: 0.84rem; font-weight: 700; cursor: pointer;
-      box-shadow: 0 5px 16px rgba(217,32,96,0.38);
-      transition: transform 0.14s ease, box-shadow 0.14s ease;
-      display: block; width: 100%;
-    }
+    .btn-close { margin-top: 18px; background: linear-gradient(135deg, #ff7aaa, #d92060); color: #fff; border: none; padding: 11px 32px; border-radius: 99px; font-size: 0.84rem; font-weight: 700; cursor: pointer; box-shadow: 0 5px 16px rgba(217,32,96,0.38); transition: transform 0.14s ease, box-shadow 0.14s ease; display: block; width: 100%; }
     .btn-close:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(217,32,96,0.25); }
+
+    /* ── A-Frame scene ──────────────────────── */
+    a-scene { position: fixed !important; inset: 0 !important; z-index: 0 !important; width: 100vw !important; height: 100vh !important; display: block; }
   </style>
 </head>
 <body>
-
-  <div id="ar-container"></div>
 
   <!-- Splash -->
   <div id="splash" class="overlay active">
@@ -176,15 +110,9 @@
   <div id="loading" class="overlay">
     <div class="loading-logo">FRONTLINE</div>
     <div class="steps">
-      <div class="step" id="step-lib">
-        <div class="step-dot"></div><span>Memuat library AR</span>
-      </div>
-      <div class="step" id="step-asset">
-        <div class="step-dot"></div><span>Memeriksa aset</span>
-      </div>
-      <div class="step" id="step-cam">
-        <div class="step-dot"></div><span>Menyiapkan kamera</span>
-      </div>
+      <div class="step" id="step-lib"><div class="step-dot"></div><span>Memuat library AR</span></div>
+      <div class="step" id="step-asset"><div class="step-dot"></div><span>Memeriksa aset</span></div>
+      <div class="step" id="step-cam"><div class="step-dot"></div><span>Menyiapkan kamera</span></div>
     </div>
   </div>
 
@@ -192,8 +120,9 @@
   <div id="error" class="overlay">
     <div class="error-icon">⚠️</div>
     <div class="error-logo">FRONTLINE</div>
-    <p class="error-msg"  id="error-msg"></p>
-    <p class="error-hint" id="error-hint"></p>
+    <p class="error-msg"   id="error-msg"></p>
+    <p class="error-hint"  id="error-hint"></p>
+    <p class="error-debug" id="error-debug"></p>
     <button class="btn-retry" id="btn-retry">↺ Coba Lagi</button>
   </div>
 
@@ -214,11 +143,7 @@
     <div class="card">
       <span class="card-icon">🐴</span>
       <h2>Selamat Datang!</h2>
-      <p>
-        Terima kasih sudah memilih <strong>Frontline</strong>
-        untuk momen spesial si kecil.<br><br>
-        Semoga menjadi kenangan manis yang selalu dikenang. 💕
-      </p>
+      <p>Terima kasih sudah memilih <strong>Frontline</strong> untuk momen spesial si kecil.<br><br>Semoga menjadi kenangan manis yang selalu dikenang. 💕</p>
       <div class="card-divider"></div>
       <div class="card-brand">FRONTLINE BABY SOUVENIR</div>
       <button class="btn-close" id="btn-close">Tutup</button>
@@ -229,7 +154,48 @@
     <source src="./assets/audio/greeting.mp3" type="audio/mpeg">
   </audio>
 
+  <!--
+    Load A-Frame + MindAR via unpkg (npm's official CDN, berbeda dari jsDelivr).
+    onerror diset supaya kita bisa deteksi kalau CDN tidak bisa diakses.
+  -->
+  <script>window._loadErr = {};</script>
+  <script src="https://unpkg.com/aframe@1.4.2/dist/aframe.min.js"
+          onerror="window._loadErr.aframe = true"></script>
+  <script src="https://unpkg.com/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"
+          onerror="window._loadErr.mindar = true"></script>
+
   <script>
+    /* ── Auto-scale component ─────────────────
+       Scales model to fit inside `size` units
+       (MindAR target width ≈ 1 unit)
+    ─────────────────────────────────────────── */
+    if (window.AFRAME) {
+      AFRAME.registerComponent('auto-scale', {
+        schema: { size: { default: 0.85 } },
+        init: function () {
+          this.el.addEventListener('model-loaded', () => {
+            const obj = this.el.getObject3D('mesh');
+            if (!obj) return;
+            const T   = AFRAME.THREE;
+            const box = new T.Box3().setFromObject(obj);
+            const dim = box.getSize(new T.Vector3());
+            const ctr = box.getCenter(new T.Vector3());
+            const max = Math.max(dim.x, dim.y, dim.z);
+            if (!max) return;
+            const s = this.data.size / max;
+            this.el.setAttribute('scale', { x: s, y: s, z: s });
+            // Centre model so its base sits at y=0
+            this.el.setAttribute('position', {
+              x: -ctr.x * s,
+              y: (-ctr.y + dim.y * 0.5) * s + 0.05,
+              z: -ctr.z * s
+            });
+          });
+        }
+      });
+    }
+
+    /* ── App ──────────────────────────────────── */
     (() => {
       'use strict';
 
@@ -242,235 +208,163 @@
       const audioEl     = document.getElementById('greeting-audio');
       const errorMsgEl  = document.getElementById('error-msg');
       const errorHintEl = document.getElementById('error-hint');
+      const errorDbgEl  = document.getElementById('error-debug');
       const stepLib     = document.getElementById('step-lib');
       const stepAsset   = document.getElementById('step-asset');
       const stepCam     = document.getElementById('step-cam');
-      const btnStart    = document.getElementById('btn-start');
 
       let hasGreeted = false;
-      let arInstance = null;
-      let THREE      = null;
-      let GLTFLoader = null;
+      let arScene    = null;
 
-      /* ── Screen state ───────────────────── */
       function showScreen(id) {
         [splashEl, loadingEl, errorEl].forEach(el => el.classList.remove('active'));
         if (id) document.getElementById(id).classList.add('active');
       }
-      function setStep(el, state) {
-        el.className = 'step' + (state ? ' ' + state : '');
-      }
-      function showError(msg, hint) {
+      function setStep(el, state) { el.className = 'step' + (state ? ' ' + state : ''); }
+      function showError(msg, hint, debug) {
         errorMsgEl.textContent  = msg;
-        errorHintEl.textContent = hint || '';
+        errorHintEl.textContent = hint  || '';
+        errorDbgEl.textContent  = debug || '';
         showScreen('error');
       }
-
       const paint = () => new Promise(r => setTimeout(r, 80));
 
-      /* ── Dynamic script loader ──────────── */
-      function loadScript(src) {
-        return new Promise((resolve, reject) => {
-          const s    = document.createElement('script');
-          s.src      = src;
-          s.onload   = resolve;
-          s.onerror  = () => reject(new Error('Gagal load: ' + src));
-          document.head.appendChild(s);
-        });
+      /* ── Remove old A-Frame scene if any ─── */
+      function removeScene() {
+        if (arScene && arScene.parentNode) {
+          try { arScene.systems?.['mindar-image-system']?.stop(); } catch (_) {}
+          arScene.parentNode.removeChild(arScene);
+          arScene = null;
+        }
       }
 
-      /* ── Main AR flow ───────────────────── */
+      /* ── Main flow ──────────────────────── */
       async function startAR() {
         showScreen('loading');
         [stepLib, stepAsset, stepCam].forEach(s => setStep(s, ''));
 
-        /* ── Step 1: Load THREE + GLTFLoader + MindAR ── */
+        /* Step 1 — library check ───────────── */
         setStep(stepLib, 'active');
         await paint();
 
-        try {
-          if (!THREE) {
-            // Pakai jsm path — selalu ada di semua versi Three.js modern
-            const base = 'https://cdn.jsdelivr.net/npm/three@0.160.0';
-            const tm   = await import(base + '/build/three.module.js');
-            const gm   = await import(base + '/examples/jsm/loaders/GLTFLoader.js');
-            THREE      = tm;
-            GLTFLoader = gm.GLTFLoader;
-            // Expose ke global SEBELUM MindAR load (MindAR butuh window.THREE)
-            window.THREE = THREE;
-          }
-
-          if (!window.MINDAR) {
-            await loadScript('https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js');
-          }
-        } catch (e) {
-          console.error('[Frontline] Library error:', e);
+        if (window._loadErr.aframe) {
           return showError(
-            'Gagal memuat library AR.',
-            'Periksa koneksi internet lalu muat ulang halaman.'
+            'Gagal memuat A-Frame.',
+            'CDN tidak bisa diakses dari jaringan kamu.',
+            'unpkg.com/aframe@1.4.2 — FAILED'
           );
         }
-
-        if (!window.MINDAR) {
+        if (window._loadErr.mindar) {
+          return showError(
+            'Gagal memuat MindAR.',
+            'CDN tidak bisa diakses dari jaringan kamu.',
+            'unpkg.com/mind-ar@1.2.5 — FAILED'
+          );
+        }
+        if (!window.AFRAME || !window.MINDAR) {
           return showError(
             'Library AR tidak tersedia.',
-            'Coba gunakan Chrome atau Safari versi terbaru.'
+            'Coba refresh halaman atau ganti jaringan (WiFi ↔ Data).',
+            `AFRAME=${!!window.AFRAME} MINDAR=${!!window.MINDAR}`
           );
         }
         setStep(stepLib, 'done');
 
-        /* ── Step 2: Verify marker file ─────── */
+        /* Step 2 — verify marker ───────────── */
         setStep(stepAsset, 'active');
         await paint();
 
+        const markerUrl = window.location.origin + '/assets/targets/marker.mind';
+        const modelUrl  = window.location.origin + '/assets/models/rockinghorsgdel-v1.glb';
+
         try {
-          const markerUrl = window.location.origin + '/assets/targets/marker.mind';
           const r = await fetch(markerUrl, { method: 'HEAD' });
           if (!r.ok) throw new Error('HTTP ' + r.status);
-        } catch {
+        } catch (e) {
           return showError(
             'File marker tidak ditemukan.',
-            'Hubungi Frontline Baby Souvenir untuk bantuan teknis.'
+            'Hubungi Frontline Baby Souvenir untuk bantuan.',
+            e.message
           );
         }
         setStep(stepAsset, 'done');
 
-        /* ── Step 3: Camera + MindAR ─────────── */
+        /* Step 3 — build & start A-Frame ───── */
         setStep(stepCam, 'active');
         await paint();
 
-        try {
-          const markerUrl = window.location.origin + '/assets/targets/marker.mind';
+        removeScene();
 
-          arInstance = new window.MINDAR.IMAGE.MindARThree({
-            container:      document.getElementById('ar-container'),
-            imageTargetSrc: markerUrl,
-            maxTrack:       1,
-            uiLoading:      'no',
-            uiScanning:     'yes',
-            uiError:        'no',
-          });
+        arScene = document.createElement('a-scene');
+        arScene.setAttribute('mindar-image',
+          `imageTargetSrc: ${markerUrl}; autoStart: true; uiLoading: no; uiScanning: yes; uiError: no; maxTrack: 1`
+        );
+        arScene.setAttribute('color-space', 'sRGB');
+        arScene.setAttribute('renderer', 'colorManagement: true');
+        arScene.setAttribute('embedded', '');
+        arScene.setAttribute('vr-mode-ui', 'enabled: false');
+        arScene.setAttribute('device-orientation-permission-ui', 'enabled: false');
 
-          const { renderer, scene, camera } = arInstance;
-          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        arScene.innerHTML = `
+          <a-assets timeout="20000">
+            <a-asset-item id="horse-glb" src="${modelUrl}"></a-asset-item>
+          </a-assets>
+          <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+          <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
+            <a-entity
+              animation__rock="property: rotation; from: 0 0 -5; to: 0 0 5; dur: 1200; dir: alternate; loop: true; easing: easeInOutSine"
+              animation__bob="property: position; from: 0 0 0; to: 0 0.06 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine">
+              <a-gltf-model src="#horse-glb" auto-scale="size: 0.85"></a-gltf-model>
+            </a-entity>
+          </a-entity>
+        `;
 
-          /* Lighting */
-          scene.add(new THREE.AmbientLight(0xffeef5, 2.2));
+        /* Events */
+        arScene.addEventListener('arReady', () => {
+          setStep(stepCam, 'done');
+          showScreen(null);
+          arUiEl.classList.add('show');
 
-          const keyLight  = new THREE.DirectionalLight(0xfff0f5, 2.8);
-          keyLight.position.set(1, 3, 2);
-          scene.add(keyLight);
-
-          const fillLight = new THREE.DirectionalLight(0xffcce0, 1.4);
-          fillLight.position.set(-2, -0.5, 1.5);
-          scene.add(fillLight);
-
-          const rimLight  = new THREE.DirectionalLight(0xffffff, 0.9);
-          rimLight.position.set(0, -1.5, -2);
-          scene.add(rimLight);
-
-          /* Anchor */
-          const anchor = arInstance.addAnchor(0);
-
-          /* Load GLB */
-          const loader = new GLTFLoader();
-          let horseModel = null;
-
-          loader.load(
-            './assets/models/rockinghorsgdel-v1.glb',
-            (gltf) => {
-              horseModel = gltf.scene;
-
-              const box    = new THREE.Box3().setFromObject(horseModel);
-              const centre = box.getCenter(new THREE.Vector3());
-              const size   = box.getSize(new THREE.Vector3());
-
-              horseModel.position.sub(centre);
-              horseModel.scale.setScalar(0.85 / Math.max(size.x, size.y, size.z));
-              horseModel.position.y += 0.12;
-
-              horseModel.traverse((child) => {
-                if (!child.isMesh) return;
-                const mats = Array.isArray(child.material) ? child.material : [child.material];
-                mats.forEach(mat => {
-                  if (mat.color) mat.color.lerp(new THREE.Color(0xffb6c1), 0.08);
-                });
-              });
-
-              anchor.group.add(horseModel);
-            },
-            undefined,
-            (err) => console.warn('[Frontline] GLB load failed:', err)
-          );
-
-          /* AR events */
-          anchor.onTargetFound = () => {
+          const target = document.getElementById('ar-target');
+          target.addEventListener('targetFound', () => {
             scanHintEl.style.opacity = '0';
             if (!hasGreeted) {
               hasGreeted = true;
               audioEl.play().catch(() => {});
               setTimeout(() => greetingEl.classList.add('show'), 750);
             }
-          };
-          anchor.onTargetLost = () => { scanHintEl.style.opacity = '1'; };
-
-          document.getElementById('btn-close').addEventListener('click', () => {
-            greetingEl.classList.remove('show');
           });
+          target.addEventListener('targetLost', () => { scanHintEl.style.opacity = '1'; });
+        });
 
-          /* Animation */
-          let t = 0;
-          renderer.setAnimationLoop(() => {
-            if (horseModel) {
-              t += 0.022;
-              horseModel.rotation.z = Math.sin(t) * 0.09;
-              horseModel.position.y = 0.12 + Math.sin(t * 0.55) * 0.014;
-            }
-            renderer.render(scene, camera);
-          });
-
-          await arInstance.start();
-
-        } catch (err) {
-          const msg = (err?.message || err?.name || '').toLowerCase();
-          console.error('[Frontline] AR error:', err);
-
-          if (msg.includes('notallowed') || msg.includes('permission') || msg.includes('denied')) {
-            return showError(
-              'Izin kamera ditolak.',
-              'Buka pengaturan browser → Izin Situs → aktifkan Kamera, lalu coba lagi.'
-            );
+        arScene.addEventListener('arError', (evt) => {
+          const detail = evt.detail || {};
+          const msg    = (detail.message || detail.name || JSON.stringify(detail) || '').toLowerCase();
+          if (msg.includes('denied') || msg.includes('permission') || msg.includes('notallowed')) {
+            showError('Izin kamera ditolak.', 'Buka pengaturan browser dan aktifkan kamera untuk situs ini.', msg);
+          } else if (msg.includes('notfound') || msg.includes('nodevice')) {
+            showError('Kamera tidak terdeteksi.', 'Pastikan kamera tidak dipakai aplikasi lain.', msg);
+          } else {
+            showError('Gagal memulai AR.', 'Coba muat ulang halaman dan izinkan akses kamera.', msg);
           }
-          if (msg.includes('notfound') || msg.includes('devicenotfound')) {
-            return showError(
-              'Kamera tidak terdeteksi.',
-              'Pastikan perangkat memiliki kamera dan tidak dipakai aplikasi lain.'
-            );
-          }
-          return showError(
-            'Gagal memulai kamera.',
-            'Coba muat ulang halaman. Pastikan browser mengizinkan kamera.'
-          );
-        }
+        });
 
-        /* ── Success ───────────────────────── */
-        setStep(stepCam, 'done');
-        showScreen(null);
-        arUiEl.classList.add('show');
+        /* Insert → triggers A-Frame init + camera request */
+        document.body.insertBefore(arScene, document.body.firstChild);
       }
 
       /* ── Button handlers ─────────────────── */
-      btnStart.addEventListener('click', startAR);
+      document.getElementById('btn-start').addEventListener('click', startAR);
 
       document.getElementById('btn-retry').addEventListener('click', () => {
-        if (arInstance) {
-          try { arInstance.stop(); } catch (_) {}
-          arInstance = null;
-        }
         hasGreeted = false;
         greetingEl.classList.remove('show');
         arUiEl.classList.remove('show');
         startAR();
+      });
+
+      document.getElementById('btn-close').addEventListener('click', () => {
+        greetingEl.classList.remove('show');
       });
 
     })();
