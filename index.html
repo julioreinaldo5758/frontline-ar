@@ -289,10 +289,38 @@
         }
         setStep(stepAsset, 'done');
 
-        /* Step 3 — build & start A-Frame ───── */
+        /* Step 3a — request camera permission explicitly ─────
+           Harus dilakukan di sini (masih dalam user-gesture context)
+           supaya browser tidak silent-block getUserMedia          */
         setStep(stepCam, 'active');
         await paint();
 
+        try {
+          const testStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' } }
+          });
+          // Izin diberikan — stop stream, MindAR akan buat stream sendiri
+          testStream.getTracks().forEach(t => t.stop());
+        } catch (camErr) {
+          const n = (camErr.name || '').toLowerCase();
+          if (n.includes('notallowed') || n.includes('permission') || n.includes('denied')) {
+            return showError(
+              'Izin kamera ditolak.',
+              'Ketuk ikon gembok / kamera di address bar, aktifkan izin kamera, lalu coba lagi.',
+              camErr.name
+            );
+          }
+          if (n.includes('notfound') || n.includes('notreadable')) {
+            return showError(
+              'Kamera tidak ditemukan.',
+              'Pastikan kamera tidak dipakai aplikasi lain.',
+              camErr.name
+            );
+          }
+          return showError('Kamera tidak dapat diakses.', camErr.message, camErr.name);
+        }
+
+        /* Step 3b — build A-Frame scene ───── */
         removeScene();
 
         arScene = document.createElement('a-scene');
@@ -305,22 +333,33 @@
         arScene.setAttribute('vr-mode-ui', 'enabled: false');
         arScene.setAttribute('device-orientation-permission-ui', 'enabled: false');
 
+        // Tidak pakai <a-assets> preloading — model load langsung di entity
+        // supaya tidak block scene initialization
         arScene.innerHTML = `
-          <a-assets timeout="20000">
-            <a-asset-item id="horse-glb" src="${modelUrl}"></a-asset-item>
-          </a-assets>
           <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
           <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
             <a-entity
               animation__rock="property: rotation; from: 0 0 -5; to: 0 0 5; dur: 1200; dir: alternate; loop: true; easing: easeInOutSine"
               animation__bob="property: position; from: 0 0 0; to: 0 0.06 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine">
-              <a-gltf-model src="#horse-glb" auto-scale="size: 0.85"></a-gltf-model>
+              <a-gltf-model src="${modelUrl}" auto-scale="size: 0.85"></a-gltf-model>
             </a-entity>
           </a-entity>
         `;
 
+        /* Timeout — kalau arReady tidak muncul dalam 15 detik, tampilkan error */
+        const arTimeout = setTimeout(() => {
+          if (loadingEl.classList.contains('active')) {
+            showError(
+              'AR tidak merespons.',
+              'Coba refresh halaman. Kalau masalah berlanjut, coba ganti browser.',
+              'arReady timeout 15s'
+            );
+          }
+        }, 15000);
+
         /* Events */
         arScene.addEventListener('arReady', () => {
+          clearTimeout(arTimeout);
           setStep(stepCam, 'done');
           showScreen(null);
           arUiEl.classList.add('show');
@@ -338,18 +377,17 @@
         });
 
         arScene.addEventListener('arError', (evt) => {
+          clearTimeout(arTimeout);
           const detail = evt.detail || {};
-          const msg    = (detail.message || detail.name || JSON.stringify(detail) || '').toLowerCase();
+          const msg = (detail.message || detail.name || JSON.stringify(detail) || '').toLowerCase();
           if (msg.includes('denied') || msg.includes('permission') || msg.includes('notallowed')) {
-            showError('Izin kamera ditolak.', 'Buka pengaturan browser dan aktifkan kamera untuk situs ini.', msg);
-          } else if (msg.includes('notfound') || msg.includes('nodevice')) {
-            showError('Kamera tidak terdeteksi.', 'Pastikan kamera tidak dipakai aplikasi lain.', msg);
+            showError('Izin kamera ditolak.', 'Aktifkan kamera di pengaturan browser lalu coba lagi.', msg);
           } else {
-            showError('Gagal memulai AR.', 'Coba muat ulang halaman dan izinkan akses kamera.', msg);
+            showError('Gagal memulai AR.', 'Coba refresh halaman.', msg);
           }
         });
 
-        /* Insert → triggers A-Frame init + camera request */
+        /* Insert → triggers A-Frame init */
         document.body.insertBefore(arScene, document.body.firstChild);
       }
 
