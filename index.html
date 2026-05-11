@@ -200,16 +200,23 @@
 
     /* ── URL config (from admin panel) ────────── */
     function getConfig() {
-      const p = new URLSearchParams(window.location.search);
-      const num = (key, def) => { const v = p.get(key); return v !== null ? parseFloat(v) : def; };
+      const p    = new URLSearchParams(window.location.search);
+      const num  = (k, d) => { const v = p.get(k); return v !== null ? parseFloat(v) : d; };
+      const flag = (k, d) => { const v = p.get(k); return v !== null ? v !== '0' : d; };
       return {
-        posX:  num('posX',  0),
-        posY:  num('posY',  0.15),
-        posZ:  num('posZ',  0),
-        rotX:  num('rotX',  0),
-        rotY:  num('rotY',  0),
-        rotZ:  num('rotZ',  0),
-        scale: num('scale', 0.85),
+        posX:    num('posX',    0),
+        posY:    num('posY',    0.15),
+        posZ:    num('posZ',    0),
+        rotX:    num('rotX',    0),
+        rotY:    num('rotY',    0),
+        rotZ:    num('rotZ',    0),
+        scale:   num('scale',   0.85),
+        rockOn:  flag('rockOn', true),
+        rockAmp: num('rockAmp', 5),
+        rockDur: num('rockDur', 1200),
+        bobOn:   flag('bobOn',  true),
+        bobAmp:  num('bobAmp',  0.06),
+        bobDur:  num('bobDur',  1800),
       };
     }
 
@@ -353,14 +360,18 @@
 
         // Tidak pakai <a-assets> preloading — model load langsung di entity
         // supaya tidak block scene initialization
-        const cfg = getConfig();
+        const cfg      = getConfig();
+        const rockAnim = cfg.rockOn
+          ? `animation__rock="property: rotation; from: 0 0 -${cfg.rockAmp}; to: 0 0 ${cfg.rockAmp}; dur: ${cfg.rockDur}; dir: alternate; loop: true; easing: easeInOutSine"`
+          : '';
+        const bobAnim  = cfg.bobOn
+          ? `animation__bob="property: position; from: 0 0 0; to: 0 ${cfg.bobAmp} 0; dur: ${cfg.bobDur}; dir: alternate; loop: true; easing: easeInOutSine"`
+          : '';
         arScene.innerHTML = `
           <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
           <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
             <a-entity position="${cfg.posX} ${cfg.posY} ${cfg.posZ}" rotation="${cfg.rotX} ${cfg.rotY} ${cfg.rotZ}">
-              <a-entity
-                animation__rock="property: rotation; from: 0 0 -5; to: 0 0 5; dur: 1200; dir: alternate; loop: true; easing: easeInOutSine"
-                animation__bob="property: position; from: 0 0 0; to: 0 0.06 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine">
+              <a-entity ${rockAnim} ${bobAnim}>
                 <a-gltf-model src="${modelUrl}" auto-scale="size: ${cfg.scale}"></a-gltf-model>
               </a-entity>
             </a-entity>

@@ -2,271 +2,440 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Frontline — Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontline AR — 3D Editor</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #1a0010;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      padding: 28px 20px 48px;
-      color: #fff;
-    }
+    html, body { height: 100%; overflow: hidden; }
+    body { background: #0c0008; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #fff; display: flex; flex-direction: column; }
 
-    .header { text-align: center; margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: 7px; color: #fff; }
-    .header p  { font-size: 0.65rem; color: rgba(255,100,155,0.8); letter-spacing: 3px; margin-top: 5px; font-weight: 700; }
+    .hdr { height: 46px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: #180010; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .hdr-brand { font-size: 0.88rem; font-weight: 900; letter-spacing: 5px; }
+    .hdr-sub   { font-size: 0.56rem; color: rgba(255,100,155,0.7); letter-spacing: 2px; margin-top: 1px; }
+    .hdr-right { display: flex; gap: 7px; }
 
-    .section-label {
-      font-size: 0.6rem; letter-spacing: 2.5px; color: rgba(255,100,155,0.75);
-      font-weight: 800; text-transform: uppercase; margin: 22px 0 10px;
-    }
+    .main { flex: 1; display: flex; overflow: hidden; }
 
-    .control {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px; padding: 14px 16px; margin-bottom: 8px;
-    }
-    .control-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .control-label  { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.85); }
-    .control-value  {
-      font-size: 0.8rem; font-weight: 700; color: #ff7aaa;
-      font-variant-numeric: tabular-nums; min-width: 48px; text-align: right;
-    }
+    /* Viewport */
+    .vp { flex: 1; position: relative; background: #0a0006; }
+    canvas { display: block; width: 100%; height: 100%; }
 
-    input[type="range"] {
-      width: 100%; height: 4px; border-radius: 4px; cursor: pointer;
-      -webkit-appearance: none; appearance: none; outline: none;
-      background: linear-gradient(to right, #ff6b9d var(--pct,50%), rgba(255,255,255,0.15) var(--pct,50%));
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: #fff; cursor: pointer;
-      box-shadow: 0 2px 10px rgba(210,45,95,0.55);
-    }
-    input[type="range"]::-moz-range-thumb {
-      width: 22px; height: 22px; border-radius: 50%; border: none;
-      background: #fff; cursor: pointer;
-      box-shadow: 0 2px 10px rgba(210,45,95,0.55);
-    }
+    .vp-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgba(8,1,5,0.82); }
+    .spin { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #ff7aaa; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .vp-overlay p { font-size: 0.78rem; color: rgba(255,255,255,0.45); text-align: center; padding: 0 20px; }
 
-    .url-section { margin-top: 4px; }
-    .url-box {
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px; padding: 12px 14px;
-      word-break: break-all; font-size: 0.63rem;
-      color: rgba(255,255,255,0.5); line-height: 1.65;
-      font-family: 'Courier New', monospace; min-height: 52px;
-    }
+    .vp-toolbar { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; background: rgba(12,2,8,0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.09); border-radius: 99px; padding: 5px 7px; }
+    .vb { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.09); color: rgba(255,255,255,0.6); padding: 5px 13px; border-radius: 99px; font-size: 0.68rem; font-weight: 600; cursor: pointer; transition: all 0.13s; white-space: nowrap; }
+    .vb:hover  { background: rgba(255,255,255,0.13); color: #fff; }
+    .vb.active { background: rgba(255,80,150,0.28); border-color: rgba(255,100,155,0.45); color: #ff7aaa; }
 
-    .btn-row { display: flex; gap: 10px; margin-top: 16px; }
-    .btn {
-      flex: 1; padding: 15px 10px; border-radius: 99px; border: none;
-      font-size: 0.88rem; font-weight: 700; cursor: pointer;
-      transition: transform 0.12s, opacity 0.15s;
-    }
+    /* Panel */
+    .panel { width: 268px; flex-shrink: 0; background: #160010; border-left: 1px solid rgba(255,255,255,0.07); overflow-y: auto; display: flex; flex-direction: column; }
+    .panel::-webkit-scrollbar { width: 3px; }
+    .panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    .sec { padding: 12px 13px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .stitle { font-size: 0.56rem; letter-spacing: 2px; color: rgba(255,100,155,0.68); font-weight: 800; text-transform: uppercase; margin-bottom: 9px; }
+
+    /* XYZ inputs */
+    .xrow { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+    .xlbl { font-size: 0.64rem; color: rgba(255,255,255,0.4); width: 54px; flex-shrink: 0; line-height: 1.3; }
+    .xinp { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.74rem; padding: 5px 7px; text-align: center; outline: none; transition: border-color 0.13s; font-family: 'Courier New', monospace; }
+    .xinp:focus { border-color: rgba(255,100,155,0.5); }
+    .xinp.cx { border-color: rgba(255,70,70,0.22); }  .xinp.cx:focus { border-color: rgba(255,70,70,0.6); }
+    .xinp.cy { border-color: rgba(60,210,60,0.22); }  .xinp.cy:focus { border-color: rgba(60,210,60,0.6); }
+    .xinp.cz { border-color: rgba(60,130,255,0.22); } .xinp.cz:focus { border-color: rgba(60,130,255,0.6); }
+
+    /* Scale */
+    .srow { display: flex; align-items: center; gap: 9px; }
+    input[type=range].sl { flex: 1; height: 4px; border-radius: 4px; cursor: pointer; -webkit-appearance: none; appearance: none; outline: none; background: linear-gradient(to right, #ff6b9d var(--p,40%), rgba(255,255,255,0.12) var(--p,40%)); }
+    input[type=range].sl::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 2px 8px rgba(200,30,90,0.5); }
+    .snum { font-size: 0.74rem; color: #ff7aaa; font-family: monospace; min-width: 32px; text-align: right; }
+
+    /* Toggle */
+    .arow { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+    .albl { font-size: 0.72rem; color: rgba(255,255,255,0.72); flex: 1; }
+    .tog { position: relative; width: 32px; height: 18px; flex-shrink: 0; }
+    .tog input { opacity: 0; width: 0; height: 0; }
+    .tog-sl { position: absolute; inset: 0; background: rgba(255,255,255,0.12); border-radius: 18px; cursor: pointer; transition: 0.17s; }
+    .tog-sl::before { content: ''; position: absolute; width: 12px; height: 12px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.17s; }
+    .tog input:checked + .tog-sl { background: #c9205a; }
+    .tog input:checked + .tog-sl::before { transform: translateX(14px); }
+
+    .asub { display: flex; gap: 7px; margin: 0 0 9px 4px; }
+    .asub-col label { font-size: 0.57rem; color: rgba(255,255,255,0.32); display: block; margin-bottom: 2px; }
+    .asub-col input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.7rem; padding: 4px 6px; width: 68px; outline: none; text-align: center; }
+
+    /* Model input */
+    .mrow { display: flex; gap: 5px; }
+    .minp { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: rgba(255,255,255,0.6); font-size: 0.64rem; padding: 6px 8px; outline: none; font-family: monospace; }
+    .minp:focus { border-color: rgba(255,100,155,0.4); color: #fff; }
+
+    /* URL */
+    .url-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 8px 10px; font-size: 0.57rem; color: rgba(255,255,255,0.38); font-family: monospace; word-break: break-all; line-height: 1.6; min-height: 44px; margin-bottom: 8px; }
+
+    /* Buttons */
+    .btn { padding: 9px 13px; border-radius: 99px; border: none; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: transform 0.12s; }
     .btn:active { transform: scale(0.96); }
-    .btn-primary   { background: linear-gradient(135deg, #ff7aaa, #d92060); color: #fff; box-shadow: 0 4px 18px rgba(217,32,96,0.4); }
-    .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1.5px solid rgba(255,255,255,0.22); }
+    .btn-sm { padding: 5px 11px; font-size: 0.67rem; border-radius: 7px; }
+    .btn-p { background: linear-gradient(135deg, #ff7aaa, #d92060); color: #fff; }
+    .btn-s { background: rgba(255,255,255,0.09); color: #fff; border: 1.5px solid rgba(255,255,255,0.17); }
+    .brow { display: flex; gap: 7px; }
+    .brow .btn { flex: 1; }
 
-    .footer-actions { text-align: center; margin-top: 18px; display: flex; justify-content: center; gap: 20px; }
-    .link-btn {
-      font-size: 0.68rem; color: rgba(255,100,155,0.65); background: none;
-      border: none; cursor: pointer; padding: 4px 0; text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    .link-btn:hover { color: #ff7aaa; }
-
-    .toast {
-      position: fixed; bottom: 32px; left: 50%;
-      transform: translateX(-50%) translateY(16px);
-      background: rgba(20,5,15,0.95); color: #fff;
-      padding: 10px 24px; border-radius: 99px;
-      font-size: 0.78rem; font-weight: 600;
-      opacity: 0; transition: opacity 0.22s, transform 0.22s;
-      pointer-events: none; white-space: nowrap;
-    }
+    .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(10px); background: rgba(10,1,6,0.96); color: #fff; padding: 7px 18px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; opacity: 0; transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 99; white-space: nowrap; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 600px) {
+      .main { flex-direction: column; }
+      .vp    { flex: none; height: 44vh; }
+      .panel { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.07); }
+    }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>FRONTLINE</h1>
-    <p>AR ADMIN PANEL</p>
+<div class="hdr">
+  <div><div class="hdr-brand">FRONTLINE</div><div class="hdr-sub">AR 3D EDITOR</div></div>
+  <div class="hdr-right">
+    <button class="btn btn-s btn-sm" onclick="resetDefaults()">↩ Reset</button>
+    <button class="btn btn-p btn-sm" onclick="openAR()">Buka AR ↗</button>
   </div>
+</div>
 
-  <div class="section-label">Posisi Model</div>
+<div class="main">
 
-  <div class="control">
-    <div class="control-header">
-      <span class="control-label">Kiri / Kanan (X)</span>
-      <span class="control-value" id="val-posX">0.00</span>
+  <div class="vp" id="vp">
+    <canvas id="cv"></canvas>
+    <div class="vp-overlay" id="vp-load"><div class="spin"></div><p>Memuat model 3D...</p></div>
+    <div class="vp-toolbar">
+      <button class="vb active" id="btn-T" onclick="setGizmo('translate')">↔ Move</button>
+      <button class="vb"        id="btn-R" onclick="setGizmo('rotate')">↻ Rotate</button>
+      <button class="vb"        id="btn-A" onclick="toggleAnim()">⏸ Anim</button>
+      <button class="vb"                   onclick="resetView()">⌖ View</button>
     </div>
-    <input type="range" id="posX" min="-1" max="1" step="0.01" value="0">
   </div>
 
-  <div class="control">
-    <div class="control-header">
-      <span class="control-label">Tinggi / Elevasi (Y) ↑</span>
-      <span class="control-value" id="val-posY">0.15</span>
+  <div class="panel">
+
+    <div class="sec">
+      <div class="stitle">Model 3D</div>
+      <div class="mrow">
+        <input class="minp" id="model-path" type="text" value="assets/models/rockinghorsgdel-v1.glb" placeholder="assets/models/file.glb">
+        <button class="btn btn-s btn-sm" onclick="reloadModel()">Load</button>
+      </div>
     </div>
-    <input type="range" id="posY" min="-0.5" max="2" step="0.01" value="0.15">
-  </div>
 
-  <div class="control">
-    <div class="control-header">
-      <span class="control-label">Maju / Mundur (Z)</span>
-      <span class="control-value" id="val-posZ">0.00</span>
+    <div class="sec">
+      <div class="stitle">Position</div>
+      <div class="xrow"><span class="xlbl">X kiri↔kanan</span><input class="xinp cx" id="posX" type="number" step="0.01" value="0.000" oninput="onCfg()"></div>
+      <div class="xrow"><span class="xlbl">Y tinggi ↑</span>   <input class="xinp cy" id="posY" type="number" step="0.01" value="0.150" oninput="onCfg()"></div>
+      <div class="xrow"><span class="xlbl">Z maju↔mundur</span><input class="xinp cz" id="posZ" type="number" step="0.01" value="0.000" oninput="onCfg()"></div>
     </div>
-    <input type="range" id="posZ" min="-1" max="1" step="0.01" value="0">
-  </div>
 
-  <div class="section-label">Rotasi Model</div>
-
-  <div class="control">
-    <div class="control-header">
-      <span class="control-label">Condong Depan / Belakang (X)</span>
-      <span class="control-value" id="val-rotX">0°</span>
+    <div class="sec">
+      <div class="stitle">Rotation (derajat)</div>
+      <div class="xrow"><span class="xlbl">X condong</span><input class="xinp cx" id="rotX" type="number" step="1" value="0.0" oninput="onCfg()"></div>
+      <div class="xrow"><span class="xlbl">Y putar</span>  <input class="xinp cy" id="rotY" type="number" step="1" value="0.0" oninput="onCfg()"></div>
+      <div class="xrow"><span class="xlbl">Z miring</span> <input class="xinp cz" id="rotZ" type="number" step="1" value="0.0" oninput="onCfg()"></div>
     </div>
-    <input type="range" id="rotX" min="-180" max="180" step="1" value="0">
-  </div>
 
-  <div class="control">
-    <div class="control-header">
-      <span class="control-label">Putar Kiri / Kanan (Y)</span>
-      <span class="control-value" id="val-rotY">0°</span>
+    <div class="sec">
+      <div class="stitle">Scale / Ukuran</div>
+      <div class="srow">
+        <input type="range" class="sl" id="scale" min="0.1" max="3.0" step="0.01" value="0.85" oninput="onScale()">
+        <span class="snum" id="scale-val">0.85</span>
+      </div>
     </div>
-    <input type="range" id="rotY" min="-180" max="180" step="1" value="0">
-  </div>
 
-  <div class="control">
-    <div class="control-header">
-      <span class="control-label">Miring Kiri / Kanan (Z)</span>
-      <span class="control-value" id="val-rotZ">0°</span>
+    <div class="sec">
+      <div class="stitle">Animasi</div>
+      <div class="arow"><span class="albl">Goyang kiri-kanan (Rock)</span><label class="tog"><input type="checkbox" id="rockOn" checked oninput="onCfg()"><span class="tog-sl"></span></label></div>
+      <div class="asub">
+        <div class="asub-col"><label>Sudut max (°)</label><input id="rockAmp" type="number" value="5"    step="0.5" min="0" max="45" oninput="onCfg()"></div>
+        <div class="asub-col"><label>Durasi (ms)</label>  <input id="rockDur" type="number" value="1200" step="100" min="200"       oninput="onCfg()"></div>
+      </div>
+      <div class="arow"><span class="albl">Naik turun (Bob)</span><label class="tog"><input type="checkbox" id="bobOn" checked oninput="onCfg()"><span class="tog-sl"></span></label></div>
+      <div class="asub">
+        <div class="asub-col"><label>Tinggi max</label>   <input id="bobAmp" type="number" value="0.06" step="0.01" min="0"   oninput="onCfg()"></div>
+        <div class="asub-col"><label>Durasi (ms)</label>  <input id="bobDur" type="number" value="1800" step="100"  min="200" oninput="onCfg()"></div>
+      </div>
     </div>
-    <input type="range" id="rotZ" min="-180" max="180" step="1" value="0">
-  </div>
 
-  <div class="section-label">Ukuran</div>
-
-  <div class="control">
-    <div class="control-header">
-      <span class="control-label">Skala Model</span>
-      <span class="control-value" id="val-scale">0.85</span>
+    <div class="sec">
+      <div class="stitle">Export URL AR</div>
+      <div class="url-box" id="url-out"></div>
+      <div class="brow">
+        <button class="btn btn-s" onclick="copyUrl()">Salin URL</button>
+        <button class="btn btn-p" onclick="openAR()">Buka AR</button>
+      </div>
     </div>
-    <input type="range" id="scale" min="0.1" max="3.0" step="0.01" value="0.85">
+
   </div>
+</div>
 
-  <div class="section-label url-section">URL AR yang Dihasilkan</div>
-  <div class="url-box" id="url-display"></div>
+<div class="toast" id="toast"></div>
 
-  <div class="btn-row">
-    <button class="btn btn-secondary" onclick="copyUrl()">Salin URL</button>
-    <button class="btn btn-primary" onclick="openAR()">Buka AR</button>
-  </div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.154.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.154.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader }        from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls }     from 'three/addons/controls/OrbitControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
 
-  <div class="footer-actions">
-    <button class="link-btn" onclick="resetAll()">↩ Reset ke Default</button>
-    <button class="link-btn" onclick="readFromUrl()">Muat dari URL Saat Ini</button>
-  </div>
+const DEG = Math.PI / 180;
+let scene, camera, renderer, orbit, tctrl, configGroup, animGroup;
+let animOn = true;
 
-  <div class="toast" id="toast"></div>
+// ── Renderer ──────────────────────────────────
+const cv = document.getElementById('cv');
+const vp = document.getElementById('vp');
 
-  <script>
-    const CONTROLS = [
-      { id: 'posX',  valId: 'val-posX',  fmt: v => v.toFixed(2),      def: 0    },
-      { id: 'posY',  valId: 'val-posY',  fmt: v => v.toFixed(2),      def: 0.15 },
-      { id: 'posZ',  valId: 'val-posZ',  fmt: v => v.toFixed(2),      def: 0    },
-      { id: 'rotX',  valId: 'val-rotX',  fmt: v => v.toFixed(0) + '°', def: 0   },
-      { id: 'rotY',  valId: 'val-rotY',  fmt: v => v.toFixed(0) + '°', def: 0   },
-      { id: 'rotZ',  valId: 'val-rotZ',  fmt: v => v.toFixed(0) + '°', def: 0   },
-      { id: 'scale', valId: 'val-scale', fmt: v => v.toFixed(2),      def: 0.85 },
-    ];
+renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-    function getVals() {
-      const v = {};
-      CONTROLS.forEach(c => { v[c.id] = parseFloat(document.getElementById(c.id).value); });
-      return v;
-    }
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0007);
+scene.fog = new THREE.Fog(0x0b0007, 9, 18);
 
-    function buildUrl(vals) {
-      const p = new URLSearchParams();
-      CONTROLS.forEach(c => p.set(c.id, vals[c.id]));
-      return window.location.origin + '/?' + p.toString();
-    }
+camera = new THREE.PerspectiveCamera(45, 1, 0.01, 40);
+camera.position.set(0, 1.2, 2.4);
 
-    function updateTrack(slider) {
-      const min = parseFloat(slider.min);
-      const max = parseFloat(slider.max);
-      const pct = ((parseFloat(slider.value) - min) / (max - min) * 100).toFixed(1) + '%';
-      slider.style.setProperty('--pct', pct);
-    }
+// Lights
+scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+const key = new THREE.DirectionalLight(0xffd0ea, 1.3);
+key.position.set(2, 4, 3);
+scene.add(key);
+const fill = new THREE.DirectionalLight(0x9ab8ff, 0.35);
+fill.position.set(-2, 2, -2);
+scene.add(fill);
 
-    function update() {
-      const vals = getVals();
-      CONTROLS.forEach(c => {
-        const slider = document.getElementById(c.id);
-        document.getElementById(c.valId).textContent = c.fmt(vals[c.id]);
-        updateTrack(slider);
-      });
-      document.getElementById('url-display').textContent = buildUrl(vals);
-    }
+// Grid
+scene.add(new THREE.GridHelper(8, 16, 0x380d2c, 0x1e0818));
 
-    CONTROLS.forEach(c => document.getElementById(c.id).addEventListener('input', update));
+// Card plane (MindAR: 1 unit = target width; standard card ~85.6×54mm → ratio 0.631)
+const cW = 1.0, cH = 0.631;
+const cardMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(cW, cH),
+  new THREE.MeshLambertMaterial({ color: 0xfff0f5, side: THREE.DoubleSide })
+);
+cardMesh.rotation.x = -Math.PI / 2;
+cardMesh.position.y = 0.001;
+scene.add(cardMesh);
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2400);
-    }
+const borderLines = new THREE.LineSegments(
+  new THREE.EdgesGeometry(new THREE.PlaneGeometry(cW, cH)),
+  new THREE.LineBasicMaterial({ color: 0xff6b9d })
+);
+borderLines.rotation.x = -Math.PI / 2;
+borderLines.position.y = 0.002;
+scene.add(borderLines);
 
-    function copyUrl() {
-      const url = document.getElementById('url-display').textContent;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(() => showToast('URL disalin!')).catch(fallbackCopy.bind(null, url));
-      } else {
-        fallbackCopy(url);
-      }
-    }
+// Orbit
+orbit = new OrbitControls(camera, renderer.domElement);
+orbit.target.set(0, 0.35, 0);
+orbit.enableDamping = true;
+orbit.dampingFactor = 0.08;
+orbit.minDistance = 0.2;
+orbit.maxDistance = 8;
+orbit.update();
 
-    function fallbackCopy(url) {
-      const ta = document.createElement('textarea');
-      ta.value = url;
-      ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
-      document.body.appendChild(ta);
-      ta.focus(); ta.select();
-      try { document.execCommand('copy'); showToast('URL disalin!'); } catch (_) { showToast('Salin manual dari kotak di atas'); }
-      document.body.removeChild(ta);
-    }
+// Transform gizmo
+tctrl = new TransformControls(camera, renderer.domElement);
+tctrl.setMode('translate');
+tctrl.addEventListener('dragging-changed', e => { orbit.enabled = !e.value; });
+tctrl.addEventListener('change', syncToPanel);
+scene.add(tctrl);
 
-    function openAR() {
-      window.open(document.getElementById('url-display').textContent, '_blank');
-    }
+// Groups: configGroup (position/rotation from URL) → animGroup (animation) → model
+configGroup = new THREE.Group();
+scene.add(configGroup);
+animGroup = new THREE.Group();
+configGroup.add(animGroup);
+tctrl.attach(configGroup);
 
-    function resetAll() {
-      CONTROLS.forEach(c => { document.getElementById(c.id).value = c.def; });
-      update();
-      showToast('Reset ke nilai default');
-    }
+// ── Resize ────────────────────────────────────
+function resize() {
+  const w = vp.clientWidth, h = vp.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false);
+}
+resize();
+new ResizeObserver(resize).observe(vp);
 
-    function readFromUrl() {
-      const p = new URLSearchParams(window.location.search);
-      let found = false;
-      CONTROLS.forEach(c => {
-        const v = p.get(c.id);
-        if (v !== null) { document.getElementById(c.id).value = parseFloat(v); found = true; }
-      });
-      update();
-      showToast(found ? 'Nilai dimuat dari URL' : 'Tidak ada params di URL ini');
-    }
+// ── Render loop ───────────────────────────────
+function loop() {
+  requestAnimationFrame(loop);
+  if (animOn && animGroup) {
+    const t    = performance.now() / 1000;
+    const rOn  = document.getElementById('rockOn').checked;
+    const bOn  = document.getElementById('bobOn').checked;
+    const rAmp = (parseFloat(document.getElementById('rockAmp').value) || 5) * DEG;
+    const rDur = (parseFloat(document.getElementById('rockDur').value) || 1200) / 1000;
+    const bAmp = parseFloat(document.getElementById('bobAmp').value) || 0.06;
+    const bDur = (parseFloat(document.getElementById('bobDur').value) || 1800) / 1000;
+    animGroup.rotation.z = rOn ? Math.sin(t * Math.PI * 2 / rDur) * rAmp : 0;
+    animGroup.position.y = bOn ? (1 + Math.sin(t * Math.PI * 2 / bDur)) * 0.5 * bAmp : 0;
+  }
+  orbit.update();
+  renderer.render(scene, camera);
+}
+loop();
 
-    update();
-  </script>
+// ── Load model ────────────────────────────────
+const loader = new GLTFLoader();
 
+function loadModel(path) {
+  const ov = document.getElementById('vp-load');
+  ov.style.display = 'flex';
+  ov.innerHTML = '<div class="spin"></div><p>Memuat model...</p>';
+  while (animGroup.children.length) animGroup.remove(animGroup.children[0]);
+
+  loader.load(path, gltf => {
+    const m   = gltf.scene;
+    const box = new THREE.Box3().setFromObject(m);
+    const sz  = box.getSize(new THREE.Vector3());
+    const ct  = box.getCenter(new THREE.Vector3());
+    const ns  = 1.0 / Math.max(sz.x, sz.y, sz.z);
+    m.scale.setScalar(ns);
+    m.position.set(-ct.x * ns, (sz.y * 0.5 - ct.y) * ns, -ct.z * ns);
+    animGroup.add(m);
+    applyConfig();
+    ov.style.display = 'none';
+  }, undefined, err => {
+    ov.innerHTML = `<p style="color:#ff7aaa;text-align:center;padding:20px">Gagal load model.<br><small>${err.message || 'Periksa path file.'}</small></p>`;
+  });
+}
+
+loadModel(document.getElementById('model-path').value.trim());
+
+// ── Config → scene ────────────────────────────
+function n(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function applyConfig() {
+  configGroup.position.set(n('posX'), n('posY'), n('posZ'));
+  configGroup.rotation.set(n('rotX') * DEG, n('rotY') * DEG, n('rotZ') * DEG);
+  configGroup.scale.setScalar(parseFloat(document.getElementById('scale').value) || 0.85);
+  updateUrl();
+}
+
+// ── Gizmo → panel ────────────────────────────
+function syncToPanel() {
+  if (!tctrl.dragging) return;
+  const p = configGroup.position;
+  const r = configGroup.rotation;
+  set('posX', p.x.toFixed(3)); set('posY', p.y.toFixed(3)); set('posZ', p.z.toFixed(3));
+  set('rotX', (r.x / DEG).toFixed(1)); set('rotY', (r.y / DEG).toFixed(1)); set('rotZ', (r.z / DEG).toFixed(1));
+  updateUrl();
+}
+
+function set(id, v) {
+  const el = document.getElementById(id);
+  if (document.activeElement !== el) el.value = v;
+}
+
+// ── URL ───────────────────────────────────────
+function buildUrl() {
+  const p = new URLSearchParams({
+    posX: n('posX').toFixed(3), posY: n('posY').toFixed(3), posZ: n('posZ').toFixed(3),
+    rotX: n('rotX').toFixed(1), rotY: n('rotY').toFixed(1), rotZ: n('rotZ').toFixed(1),
+    scale:   (parseFloat(document.getElementById('scale').value) || 0.85).toFixed(2),
+    rockOn:  document.getElementById('rockOn').checked  ? '1' : '0',
+    rockAmp: document.getElementById('rockAmp').value,
+    rockDur: document.getElementById('rockDur').value,
+    bobOn:   document.getElementById('bobOn').checked   ? '1' : '0',
+    bobAmp:  document.getElementById('bobAmp').value,
+    bobDur:  document.getElementById('bobDur').value,
+  });
+  return `${location.origin}/?${p}`;
+}
+
+function updateUrl() { document.getElementById('url-out').textContent = buildUrl(); }
+
+// ── Toast ─────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Globals (called from HTML onclick/oninput) ─
+window.onCfg   = applyConfig;
+
+window.onScale = () => {
+  const sl = document.getElementById('scale');
+  const v  = parseFloat(sl.value);
+  document.getElementById('scale-val').textContent = v.toFixed(2);
+  sl.style.setProperty('--p', ((v - +sl.min) / (+sl.max - +sl.min) * 100).toFixed(1) + '%');
+  applyConfig();
+};
+
+window.setGizmo = mode => {
+  tctrl.setMode(mode);
+  document.getElementById('btn-T').classList.toggle('active', mode === 'translate');
+  document.getElementById('btn-R').classList.toggle('active', mode === 'rotate');
+};
+
+window.toggleAnim = () => {
+  animOn = !animOn;
+  if (!animOn) { animGroup.rotation.z = 0; animGroup.position.y = 0; }
+  document.getElementById('btn-A').textContent = animOn ? '⏸ Anim' : '▶ Anim';
+  document.getElementById('btn-A').classList.toggle('active', !animOn);
+};
+
+window.resetView = () => {
+  camera.position.set(0, 1.2, 2.4);
+  orbit.target.set(0, 0.35, 0);
+  orbit.update();
+};
+
+window.reloadModel = () => {
+  const p = document.getElementById('model-path').value.trim();
+  if (p) loadModel(p);
+};
+
+window.resetDefaults = () => {
+  ['posX','posY','posZ'].forEach((id,i) => document.getElementById(id).value = ['0.000','0.150','0.000'][i]);
+  ['rotX','rotY','rotZ'].forEach(id => document.getElementById(id).value = '0.0');
+  document.getElementById('scale').value   = '0.85';
+  document.getElementById('rockOn').checked  = true;
+  document.getElementById('bobOn').checked   = true;
+  document.getElementById('rockAmp').value   = '5';
+  document.getElementById('rockDur').value   = '1200';
+  document.getElementById('bobAmp').value    = '0.06';
+  document.getElementById('bobDur').value    = '1800';
+  window.onScale();
+  applyConfig();
+  toast('Reset ke default');
+};
+
+window.copyUrl = () => {
+  const url = buildUrl();
+  (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject())
+    .then(() => toast('URL disalin!'))
+    .catch(() => {
+      const ta = Object.assign(document.createElement('textarea'), { value: url });
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      toast('URL disalin!');
+    });
+};
+
+window.openAR = () => window.open(buildUrl(), '_blank');
+
+// Init
+window.onScale();
+updateUrl();
+</script>
 </body>
 </html>
