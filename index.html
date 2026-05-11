@@ -170,6 +170,9 @@
        (MindAR target width ≈ 1 unit)
     ─────────────────────────────────────────── */
     if (window.AFRAME) {
+      // Auto-scale: fit model inside `size` units, centre it, bottom at y=0
+      // Lifting above the card is controlled by the wrapper entity's position
+      // (set via URL params in getConfig below)
       AFRAME.registerComponent('auto-scale', {
         schema: { size: { default: 0.85 } },
         init: function () {
@@ -184,15 +187,30 @@
             if (!max) return;
             const s = this.data.size / max;
             this.el.setAttribute('scale', { x: s, y: s, z: s });
-            // Centre model so its base sits at y=0
+            // Centre horizontally; place geometric bottom at y=0
             this.el.setAttribute('position', {
               x: -ctr.x * s,
-              y: (-ctr.y + dim.y * 0.5) * s + 0.05,
+              y: (dim.y * 0.5 - ctr.y) * s,
               z: -ctr.z * s
             });
           });
         }
       });
+    }
+
+    /* ── URL config (from admin panel) ────────── */
+    function getConfig() {
+      const p = new URLSearchParams(window.location.search);
+      const num = (key, def) => { const v = p.get(key); return v !== null ? parseFloat(v) : def; };
+      return {
+        posX:  num('posX',  0),
+        posY:  num('posY',  0.15),
+        posZ:  num('posZ',  0),
+        rotX:  num('rotX',  0),
+        rotY:  num('rotY',  0),
+        rotZ:  num('rotZ',  0),
+        scale: num('scale', 0.85),
+      };
     }
 
     /* ── App ──────────────────────────────────── */
@@ -335,13 +353,16 @@
 
         // Tidak pakai <a-assets> preloading — model load langsung di entity
         // supaya tidak block scene initialization
+        const cfg = getConfig();
         arScene.innerHTML = `
           <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
           <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
-            <a-entity
-              animation__rock="property: rotation; from: 0 0 -5; to: 0 0 5; dur: 1200; dir: alternate; loop: true; easing: easeInOutSine"
-              animation__bob="property: position; from: 0 0 0; to: 0 0.06 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine">
-              <a-gltf-model src="${modelUrl}" auto-scale="size: 0.85"></a-gltf-model>
+            <a-entity position="${cfg.posX} ${cfg.posY} ${cfg.posZ}" rotation="${cfg.rotX} ${cfg.rotY} ${cfg.rotZ}">
+              <a-entity
+                animation__rock="property: rotation; from: 0 0 -5; to: 0 0 5; dur: 1200; dir: alternate; loop: true; easing: easeInOutSine"
+                animation__bob="property: position; from: 0 0 0; to: 0 0.06 0; dur: 1800; dir: alternate; loop: true; easing: easeInOutSine">
+                <a-gltf-model src="${modelUrl}" auto-scale="size: ${cfg.scale}"></a-gltf-model>
+              </a-entity>
             </a-entity>
           </a-entity>
         `;

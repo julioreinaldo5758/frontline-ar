@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Frontline — Admin Panel</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a0010;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 28px 20px 48px;
+      color: #fff;
+    }
+
+    .header { text-align: center; margin-bottom: 28px; padding-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .header h1 { font-size: 1.7rem; font-weight: 900; letter-spacing: 7px; color: #fff; }
+    .header p  { font-size: 0.65rem; color: rgba(255,100,155,0.8); letter-spacing: 3px; margin-top: 5px; font-weight: 700; }
+
+    .section-label {
+      font-size: 0.6rem; letter-spacing: 2.5px; color: rgba(255,100,155,0.75);
+      font-weight: 800; text-transform: uppercase; margin: 22px 0 10px;
+    }
+
+    .control {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 14px 16px; margin-bottom: 8px;
+    }
+    .control-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .control-label  { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .control-value  {
+      font-size: 0.8rem; font-weight: 700; color: #ff7aaa;
+      font-variant-numeric: tabular-nums; min-width: 48px; text-align: right;
+    }
+
+    input[type="range"] {
+      width: 100%; height: 4px; border-radius: 4px; cursor: pointer;
+      -webkit-appearance: none; appearance: none; outline: none;
+      background: linear-gradient(to right, #ff6b9d var(--pct,50%), rgba(255,255,255,0.15) var(--pct,50%));
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #fff; cursor: pointer;
+      box-shadow: 0 2px 10px rgba(210,45,95,0.55);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 50%; border: none;
+      background: #fff; cursor: pointer;
+      box-shadow: 0 2px 10px rgba(210,45,95,0.55);
+    }
+
+    .url-section { margin-top: 4px; }
+    .url-box {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 12px 14px;
+      word-break: break-all; font-size: 0.63rem;
+      color: rgba(255,255,255,0.5); line-height: 1.65;
+      font-family: 'Courier New', monospace; min-height: 52px;
+    }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+    .btn {
+      flex: 1; padding: 15px 10px; border-radius: 99px; border: none;
+      font-size: 0.88rem; font-weight: 700; cursor: pointer;
+      transition: transform 0.12s, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary   { background: linear-gradient(135deg, #ff7aaa, #d92060); color: #fff; box-shadow: 0 4px 18px rgba(217,32,96,0.4); }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1.5px solid rgba(255,255,255,0.22); }
+
+    .footer-actions { text-align: center; margin-top: 18px; display: flex; justify-content: center; gap: 20px; }
+    .link-btn {
+      font-size: 0.68rem; color: rgba(255,100,155,0.65); background: none;
+      border: none; cursor: pointer; padding: 4px 0; text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .link-btn:hover { color: #ff7aaa; }
+
+    .toast {
+      position: fixed; bottom: 32px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: rgba(20,5,15,0.95); color: #fff;
+      padding: 10px 24px; border-radius: 99px;
+      font-size: 0.78rem; font-weight: 600;
+      opacity: 0; transition: opacity 0.22s, transform 0.22s;
+      pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>FRONTLINE</h1>
+    <p>AR ADMIN PANEL</p>
+  </div>
+
+  <div class="section-label">Posisi Model</div>
+
+  <div class="control">
+    <div class="control-header">
+      <span class="control-label">Kiri / Kanan (X)</span>
+      <span class="control-value" id="val-posX">0.00</span>
+    </div>
+    <input type="range" id="posX" min="-1" max="1" step="0.01" value="0">
+  </div>
+
+  <div class="control">
+    <div class="control-header">
+      <span class="control-label">Tinggi / Elevasi (Y) ↑</span>
+      <span class="control-value" id="val-posY">0.15</span>
+    </div>
+    <input type="range" id="posY" min="-0.5" max="2" step="0.01" value="0.15">
+  </div>
+
+  <div class="control">
+    <div class="control-header">
+      <span class="control-label">Maju / Mundur (Z)</span>
+      <span class="control-value" id="val-posZ">0.00</span>
+    </div>
+    <input type="range" id="posZ" min="-1" max="1" step="0.01" value="0">
+  </div>
+
+  <div class="section-label">Rotasi Model</div>
+
+  <div class="control">
+    <div class="control-header">
+      <span class="control-label">Condong Depan / Belakang (X)</span>
+      <span class="control-value" id="val-rotX">0°</span>
+    </div>
+    <input type="range" id="rotX" min="-180" max="180" step="1" value="0">
+  </div>
+
+  <div class="control">
+    <div class="control-header">
+      <span class="control-label">Putar Kiri / Kanan (Y)</span>
+      <span class="control-value" id="val-rotY">0°</span>
+    </div>
+    <input type="range" id="rotY" min="-180" max="180" step="1" value="0">
+  </div>
+
+  <div class="control">
+    <div class="control-header">
+      <span class="control-label">Miring Kiri / Kanan (Z)</span>
+      <span class="control-value" id="val-rotZ">0°</span>
+    </div>
+    <input type="range" id="rotZ" min="-180" max="180" step="1" value="0">
+  </div>
+
+  <div class="section-label">Ukuran</div>
+
+  <div class="control">
+    <div class="control-header">
+      <span class="control-label">Skala Model</span>
+      <span class="control-value" id="val-scale">0.85</span>
+    </div>
+    <input type="range" id="scale" min="0.1" max="3.0" step="0.01" value="0.85">
+  </div>
+
+  <div class="section-label url-section">URL AR yang Dihasilkan</div>
+  <div class="url-box" id="url-display"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="copyUrl()">Salin URL</button>
+    <button class="btn btn-primary" onclick="openAR()">Buka AR</button>
+  </div>
+
+  <div class="footer-actions">
+    <button class="link-btn" onclick="resetAll()">↩ Reset ke Default</button>
+    <button class="link-btn" onclick="readFromUrl()">Muat dari URL Saat Ini</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const CONTROLS = [
+      { id: 'posX',  valId: 'val-posX',  fmt: v => v.toFixed(2),      def: 0    },
+      { id: 'posY',  valId: 'val-posY',  fmt: v => v.toFixed(2),      def: 0.15 },
+      { id: 'posZ',  valId: 'val-posZ',  fmt: v => v.toFixed(2),      def: 0    },
+      { id: 'rotX',  valId: 'val-rotX',  fmt: v => v.toFixed(0) + '°', def: 0   },
+      { id: 'rotY',  valId: 'val-rotY',  fmt: v => v.toFixed(0) + '°', def: 0   },
+      { id: 'rotZ',  valId: 'val-rotZ',  fmt: v => v.toFixed(0) + '°', def: 0   },
+      { id: 'scale', valId: 'val-scale', fmt: v => v.toFixed(2),      def: 0.85 },
+    ];
+
+    function getVals() {
+      const v = {};
+      CONTROLS.forEach(c => { v[c.id] = parseFloat(document.getElementById(c.id).value); });
+      return v;
+    }
+
+    function buildUrl(vals) {
+      const p = new URLSearchParams();
+      CONTROLS.forEach(c => p.set(c.id, vals[c.id]));
+      return window.location.origin + '/?' + p.toString();
+    }
+
+    function updateTrack(slider) {
+      const min = parseFloat(slider.min);
+      const max = parseFloat(slider.max);
+      const pct = ((parseFloat(slider.value) - min) / (max - min) * 100).toFixed(1) + '%';
+      slider.style.setProperty('--pct', pct);
+    }
+
+    function update() {
+      const vals = getVals();
+      CONTROLS.forEach(c => {
+        const slider = document.getElementById(c.id);
+        document.getElementById(c.valId).textContent = c.fmt(vals[c.id]);
+        updateTrack(slider);
+      });
+      document.getElementById('url-display').textContent = buildUrl(vals);
+    }
+
+    CONTROLS.forEach(c => document.getElementById(c.id).addEventListener('input', update));
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    function copyUrl() {
+      const url = document.getElementById('url-display').textContent;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => showToast('URL disalin!')).catch(fallbackCopy.bind(null, url));
+      } else {
+        fallbackCopy(url);
+      }
+    }
+
+    function fallbackCopy(url) {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try { document.execCommand('copy'); showToast('URL disalin!'); } catch (_) { showToast('Salin manual dari kotak di atas'); }
+      document.body.removeChild(ta);
+    }
+
+    function openAR() {
+      window.open(document.getElementById('url-display').textContent, '_blank');
+    }
+
+    function resetAll() {
+      CONTROLS.forEach(c => { document.getElementById(c.id).value = c.def; });
+      update();
+      showToast('Reset ke nilai default');
+    }
+
+    function readFromUrl() {
+      const p = new URLSearchParams(window.location.search);
+      let found = false;
+      CONTROLS.forEach(c => {
+        const v = p.get(c.id);
+        if (v !== null) { document.getElementById(c.id).value = parseFloat(v); found = true; }
+      });
+      update();
+      showToast(found ? 'Nilai dimuat dari URL' : 'Tidak ada params di URL ini');
+    }
+
+    update();
+  </script>
+
+</body>
+</html>
