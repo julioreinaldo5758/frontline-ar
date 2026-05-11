@@ -13,22 +13,40 @@ Alur customer: scan QR di kartu souvenir → browser terbuka → scan kartu fisi
 
 ---
 
+## Status Deploy (Current)
+
+| Item | Status | URL |
+|---|---|---|
+| GitHub repo | LIVE | https://github.com/julioreinaldo5758/frontline-ar |
+| Railway (AR experience) | LIVE | https://frontline-ar-production.up.railway.app/ |
+| Railway (Admin 3D Editor) | LIVE | https://frontline-ar-production.up.railway.app/admin.html |
+| QR Code | **Belum dibuat** | Generate dari URL Railway di atas |
+
+---
+
 ## Tech Stack
 
 | Layer | Library / Tool | Versi | Catatan |
 |---|---|---|---|
-| AR Image Tracking | MindAR.js | 1.2.5 | CDN, bundled via jsDelivr |
-| 3D Rendering | Three.js | r154 | CDN, UMD build |
-| 3D Model Loader | GLTFLoader | r154 | CDN, dari examples/js Three.js |
-| Hosting | Railway | — | Deployment target (bukan Netlify) |
+| AR Image Tracking | MindAR.js | 1.2.5 | A-Frame edition, via unpkg |
+| AR Framework | A-Frame | 1.4.2 | via unpkg |
+| 3D Editor (admin) | Three.js | r154 | ES module via unpkg, importmap |
+| 3D Editor Loaders | GLTFLoader + DRACOLoader | r154 | via unpkg + gstatic Draco decoder |
+| 3D Editor Controls | OrbitControls + TransformControls | r154 | via unpkg |
+| Hosting | Railway | — | Dockerfile nginx:alpine |
 | Build Tool | — | — | Tidak ada. Pure static HTML/CSS/JS |
-| Framework | — | — | Tidak ada. Vanilla JS |
 
-**CDN yang dipakai di index.html:**
+**CDN index.html (AR experience):**
 ```
-https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js
-https://cdn.jsdelivr.net/npm/three@0.154.0/examples/js/loaders/GLTFLoader.js
-https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js
+https://unpkg.com/aframe@1.4.2/dist/aframe.min.js
+https://unpkg.com/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js
+```
+
+**CDN admin.html (3D Editor) — ES module via importmap:**
+```
+https://unpkg.com/three@0.154.0/build/three.module.js
+https://unpkg.com/three@0.154.0/examples/jsm/  (GLTFLoader, DRACOLoader, OrbitControls, TransformControls)
+https://www.gstatic.com/draco/versioned/decoders/1.5.6/  (Draco WASM decoder)
 ```
 
 ---
@@ -37,126 +55,132 @@ https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js
 
 ```
 frontline-ar/
-├── index.html                          [DONE] AR experience lengkap
-├── README.md                           [DONE] Panduan deploy lengkap (Bahasa Indonesia)
-├── CONTEXT.md                          [DONE] File ini
+├── index.html          [DONE] AR experience + baca URL params dari admin panel
+├── admin.html          [DONE] 3D Editor visual — viewport Three.js + panel setting
+├── Dockerfile          [DONE] nginx:alpine, serve static
+├── nginx.conf          [DONE] MIME types untuk .glb, .mind, .mp3
+├── CONTEXT.md          [DONE] File ini
+├── README.md           [DONE] Panduan deploy (Bahasa Indonesia)
+├── .gitignore          [DONE]
 └── assets/
     ├── models/
-    │   ├── rockinghorsgdel-v1.glb     [READY] 3.16 MB, sudah ada tekstur
-    │   └── TARUH-FILE-GLB-DI-SINI.txt [helper, bisa dihapus]
+    │   └── rockinghorsgdel-v1.glb   [READY] 3.16 MB, Draco compressed, ada tekstur
     ├── targets/
-    │   ├── targets.mind               [READY] 528 KB — ⚠️ lihat catatan di bawah
-    │   └── CARA-BUAT-MARKER.txt       [helper, bisa dihapus]
+    │   └── marker.mind              [READY] 528 KB — image target MindAR
     └── audio/
-        ├── greeting.mp3               [MISSING] Belum direkam
-        └── CARA-BUAT-AUDIO.txt        [helper, bisa dihapus]
+        └── greeting.mp3             [READY] 90 KB — audio greeting
 ```
 
 ---
 
-## ⚠️ Isu Yang Harus Diselesaikan Sebelum Live
+## Arsitektur index.html (AR Experience)
 
-### 1. NAMA FILE MARKER TIDAK COCOK (Prioritas Tinggi)
+**Tech:** A-Frame 1.4.2 + MindAR 1.2.5 (A-Frame edition), Vanilla JS, no build tool.
 
-File marker yang ada: `assets/targets/targets.mind`  
-Yang diexpect index.html: `assets/targets/marker.mind`
+**Alur startAR():**
+1. Cek library (AFRAME, MINDAR) — tampilkan error spesifik jika gagal
+2. Fetch HEAD `marker.mind` (absolute URL — wajib, karena MindAR jalan di Web Worker)
+3. `getUserMedia()` eksplisit dalam user-gesture context → stop stream → MindAR buat stream sendiri
+4. Buat `<a-scene>` dinamis → insert ke DOM → tunggu event `arReady` (timeout 15 detik)
 
-**Fix — pilih salah satu:**
+**URL params** dibaca oleh `getConfig()` saat `startAR()` dipanggil:
 
-**Opsi A** — Rename file (lebih simpel):
+| Param | Default | Fungsi |
+|---|---|---|
+| posX | 0 | Posisi X model di atas kartu |
+| posY | 0.15 | Tinggi model dari permukaan kartu |
+| posZ | 0 | Posisi Z model |
+| rotX | 0 | Rotasi X (derajat) |
+| rotY | 0 | Rotasi Y (derajat) |
+| rotZ | 0 | Rotasi Z (derajat) |
+| scale | 0.85 | Ukuran model (1 unit = lebar kartu) |
+| rockOn | true | Toggle animasi goyang |
+| rockAmp | 5 | Sudut goyang maksimum (derajat) |
+| rockDur | 1200 | Durasi 1 siklus goyang (ms) |
+| bobOn | true | Toggle animasi naik-turun |
+| bobAmp | 0.06 | Tinggi naik-turun maksimum |
+| bobDur | 1800 | Durasi 1 siklus naik-turun (ms) |
+
+**Struktur entity A-Frame di dalam scene:**
 ```
-Rename: targets.mind → marker.mind
+<a-entity id="ar-target" mindar-image-target="targetIndex: 0">
+  <a-entity position="{posX posY posZ}" rotation="{rotX rotY rotZ}">   ← dari URL params
+    <a-entity animation__rock animation__bob>                           ← animasi
+      <a-gltf-model auto-scale="size: {scale}">                        ← model GLB
 ```
 
-**Opsi B** — Update index.html (jika tidak mau rename):
-```javascript
-// Di index.html, baris MindARThree options, ganti:
-imageTargetSrc: './assets/targets/marker.mind',
-// Menjadi:
-imageTargetSrc: './assets/targets/targets.mind',
-```
-
-### 2. AUDIO BELUM ADA
-
-File `assets/audio/greeting.mp3` belum dibuat.  
-AR tetap berjalan tanpa audio — hanya tidak ada suara greeting.  
-Rekam audio → simpan sebagai `greeting.mp3` di folder `assets/audio/`.
+**Komponen `auto-scale`:**  
+Normalizes model: fit dalam `size` units, center horizontal, bottom geometri di y=0.
 
 ---
 
-## Apa yang Sudah Selesai di index.html
+## Arsitektur admin.html (3D Editor)
 
-- Custom loading screen branded pink Frontline (menggantikan loader default MindAR)
-- Header brand "FRONTLINE" + tagline di atas kamera
-- Scan instruction pill dengan animasi bobbing
-- MindAR image tracking (1 anchor, target index 0)
-- Load GLB via GLTFLoader + auto-centre + auto-scale ke lebar kartu AR
-- Lighting: ambient + key light (warm pink) + fill light + rim light
-- Animasi rocking: ayunan Z-axis + bobbing Y-axis berulang
-- Pink tint halus di atas material asli model (lerp 8% ke #ffb6c1)
-- Greeting popup card muncul 750ms setelah target pertama ditemukan
-- Audio play saat target ditemukan (dengan `.catch()` untuk iOS silent mode)
-- Error handler: tampilkan pesan jika kamera gagal diakses
-- scanHint sembunyi saat target ditemukan, muncul lagi saat target hilang
+**Tech:** Three.js r154 ES modules (importmap), GLTFLoader + DRACOLoader, OrbitControls, TransformControls. Tidak perlu backend/server.
+
+**Cara kerja:**
+- Viewport Three.js menampilkan: grid floor + card plane putih (rasio 1:0.631, sesuai kartu fisik) + model GLB
+- Struktur Three.js: `configGroup` (position/rotation dari panel) → `animGroup` (animasi preview) → model
+- `TransformControls` attach ke `configGroup` → drag gizmo XYZ update input panel secara real-time
+- Panel input update `configGroup` → Three.js scene update real-time
+- Tombol **Salin URL** / **Buka AR** → generate URL `/?posX=...&posY=...&...` yang kompatibel dengan `index.html`
+
+**Fitur toolbar viewport:**
+- `↔ Move` — gizmo translate XYZ
+- `↻ Rotate` — gizmo rotate XYZ
+- `⏸ Anim` — pause/play animasi preview
+- `⌖ View` — reset kamera ke posisi default
+
+**Multi-project:** Untuk project baru (misal naga), ganti field "Model 3D" ke path GLB baru → klik Load. Admin panel-nya sama, tidak perlu dibuat ulang.
 
 ---
 
-## Deploy ke Railway
+## Cara Pakai Admin Panel (Workflow)
 
-Railway melayani static files via service. Langkah deploy:
+1. Buka `https://frontline-ar-production.up.railway.app/admin.html`
+2. Lihat kuda di viewport — drag gizmo atau geser slider untuk atur posisi
+3. Pause animasi (⏸) kalau mau lihat posisi statis
+4. Klik **Salin URL** → dapat URL seperti:  
+   `https://frontline-ar-production.up.railway.app/?posY=0.3&scale=1.1&rockAmp=8&...`
+5. **URL itu yang dijadikan QR code** — semua customer scan QR → lihat kuda di posisi yang sudah disetting
 
-1. **Pastikan semua aset sudah ada** (marker.mind fix + greeting.mp3)
-2. Push folder `frontline-ar/` ke GitHub repo
-3. Buka Railway → New Project → Deploy from GitHub repo
-4. Railway akan detect static files — jika perlu, tambahkan config:
+---
 
-   Buat file `railway.toml` di root folder:
-   ```toml
-   [build]
-   builder = "nixpacks"
+## Cara Lokal Preview (tanpa deploy)
 
-   [deploy]
-   startCommand = "npx serve . -l $PORT"
-   ```
+```
+cd C:\Users\ELVINA\ClaudeProjects\frontline-ar
+npx serve .
+```
+Buka `http://localhost:3000` di Chrome.  
+Admin panel: `http://localhost:3000/admin.html`
 
-   Atau gunakan **Static Site** template di Railway (drag & drop atau GitHub).
-
-5. Railway otomatis assign domain HTTPS (misal: `frontline-ar.up.railway.app`)
-6. Gunakan URL tersebut untuk generate QR code
-
-**Penting:** Railway wajib HTTPS — sudah otomatis terpenuhi.
+> ⚠️ AR experience (index.html) butuh HTTPS untuk kamera — lokal hanya bisa test UI-nya.  
+> Untuk test AR penuh, harus deploy ke Railway dulu.
 
 ---
 
 ## Next Steps (Urutan Prioritas)
 
-- [ ] **Fix nama file marker** — rename `targets.mind` → `marker.mind` (atau update index.html)
-- [ ] **Rekam audio greeting** — simpan sebagai `assets/audio/greeting.mp3`
-- [ ] **Test lokal** — via Live Server / `npx serve .` sebelum deploy
-- [ ] **Deploy ke Railway** — push ke GitHub → connect di Railway
-- [ ] **Generate QR code** dari URL Railway
-- [ ] **Test end-to-end** di HP: scan QR → AR muncul → suara → popup
-- [ ] (Opsional) Hapus file `.txt` helper dari folder assets setelah tidak diperlukan
+- [ ] **Test admin panel** — buka `/admin.html`, atur posisi kuda sampai pas, salin URL
+- [ ] **Generate QR code** — dari URL hasil export admin panel (pakai qr-code-generator.com atau canva)
+- [ ] **Test end-to-end di HP** — scan QR → AR muncul → suara → popup greeting
+- [ ] **Fine-tune posisi** — kalau kuda masih aneh posisinya, adjust di admin panel lagi
+- [ ] (Opsional) **Hapus file .txt helper** dari folder assets (sudah di .gitignore, tidak urgent)
+- [ ] (Opsional) **Rekam ulang audio** greeting.mp3 kalau suaranya kurang cocok
 
 ---
 
-## Parameter Kustomisasi Cepat
+## Hal Penting yang Sudah Resolved (Jangan Diutak-atik)
 
-Semua ada di `index.html` bagian `<script>`:
-
-```javascript
-const targetSize = 0.85;                        // Skala model (0.5 kecil — 1.5 besar)
-horseModel.position.y += 0.12;                  // Tinggi model di atas kartu
-tick += 0.022;                                  // Kecepatan animasi rocking
-horseModel.rotation.z = Math.sin(tick) * 0.09; // Sudut ayunan (0.09 = ~5 derajat)
-mat.color.lerp(new THREE.Color(0xffb6c1), 0.08); // Intensitas pink tint
-```
-
-Greeting card text ada di bagian HTML:
-```html
-<h2>Selamat Datang!</h2>
-<p>Terima kasih sudah memilih <strong>Frontline</strong> ...</p>
-```
+| Masalah | Solusi |
+|---|---|
+| MindAR "no internet" di Web Worker | Wajib pakai **absolute URL** untuk `imageTargetSrc` (`window.location.origin + '/assets/...'`) |
+| Kamera tidak minta izin | `getUserMedia()` eksplisit di dalam click handler sebelum buat `<a-scene>` |
+| `arReady` tidak pernah fire | Hapus `<a-assets>` preloading — model load langsung di entity |
+| CDN jsDelivr tidak bisa diakses | Ganti ke **unpkg.com** untuk semua library AR |
+| Model Draco compressed | Tambah `DRACOLoader` dengan decoder dari gstatic |
+| Model amblas ke kartu | `auto-scale` taruh bottom model di y=0; URL param `posY` angkat ke atas |
 
 ---
 
