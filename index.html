@@ -478,7 +478,8 @@
         await paint();
 
         try {
-          const r = await fetch('./assets/targets/marker.mind', { method: 'HEAD' });
+          const markerCheck = window.location.origin + '/assets/targets/marker.mind';
+          const r = await fetch(markerCheck, { method: 'HEAD' });
           if (!r.ok) throw new Error('HTTP ' + r.status);
         } catch {
           return showError(
@@ -493,13 +494,16 @@
         await paint();
 
         try {
+          // Absolute URL wajib — relative URL gagal di-resolve inside Web Worker
+          const markerUrl = window.location.origin + '/assets/targets/marker.mind';
+
           arInstance = new window.MINDAR.IMAGE.MindARThree({
             container:      document.getElementById('ar-container'),
-            imageTargetSrc: './assets/targets/marker.mind',
+            imageTargetSrc: markerUrl,
             maxTrack:       1,
             uiLoading:      'no',
             uiScanning:     'yes',
-            uiError:        'yes',
+            uiError:        'no',
           });
 
           const { renderer, scene, camera } = arInstance;
