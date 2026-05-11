@@ -1,0 +1,9 @@
+# Helper placeholder files (tidak perlu di-upload)
+assets/models/TARUH-FILE-GLB-DI-SINI.txt
+assets/targets/CARA-BUAT-MARKER.txt
+assets/audio/CARA-BUAT-AUDIO.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

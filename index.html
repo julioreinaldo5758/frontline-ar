@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Frontline — Baby AR Experience</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a0010;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #ar-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Loading Overlay ───────────────────────── */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: linear-gradient(160deg, #ff7aa8 0%, #ffcce0 50%, #fff0f5 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      transition: opacity 0.6s ease;
+    }
+    #loading-overlay.hide { opacity: 0; pointer-events: none; }
+
+    .loading-logo {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 6px;
+      text-shadow: 0 3px 12px rgba(0,0,0,0.18);
+    }
+    .loading-sub {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 3px;
+    }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+      margin-top: 4px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-note {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.72);
+      text-align: center;
+      max-width: 230px;
+      line-height: 1.6;
+      margin-top: 4px;
+    }
+
+    /* ── Header ────────────────────────────────── */
+    #header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 10;
+      padding: 22px 16px 44px;
+      background: linear-gradient(to bottom, rgba(255,100,155,0.72) 0%, transparent 100%);
+      text-align: center;
+      pointer-events: none;
+    }
+    #header .brand { font-size: 1.45rem; font-weight: 900; color: #fff; letter-spacing: 5px; text-shadow: 0 2px 8px rgba(0,0,0,0.22); }
+    #header .tagline { font-size: 0.67rem; color: rgba(255,255,255,0.82); letter-spacing: 2px; margin-top: 3px; }
+
+    /* ── Scan Hint ─────────────────────────────── */
+    #scan-hint {
+      position: fixed;
+      inset: auto 0 36px 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .scan-pill {
+      background: rgba(220, 50, 100, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #fff;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 11px 26px;
+      border-radius: 99px;
+      box-shadow: 0 4px 16px rgba(220,50,100,0.35);
+      animation: bob 2.2s ease-in-out infinite;
+    }
+    .scan-sub {
+      font-size: 0.67rem;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* ── Greeting Card ─────────────────────────── */
+    #greeting {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.28);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    #greeting.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .card {
+      background: linear-gradient(150deg, #fff8fa 0%, #ffe4ee 100%);
+      border: 1.5px solid #ffbcd0;
+      border-radius: 26px;
+      padding: 30px 32px 24px;
+      max-width: 305px;
+      width: 88%;
+      text-align: center;
+      box-shadow: 0 16px 48px rgba(220,50,100,0.22), 0 4px 12px rgba(0,0,0,0.1);
+      transform: scale(0.88) translateY(12px);
+      transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    #greeting.show .card { transform: scale(1) translateY(0); }
+
+    .card-icon { font-size: 2.6rem; display: block; margin-bottom: 10px; }
+    .card h2 { font-size: 1.18rem; color: #c02060; font-weight: 800; margin-bottom: 8px; }
+    .card p { font-size: 0.8rem; color: #7a5570; line-height: 1.65; }
+    .card .divider { width: 40px; height: 2px; background: #ffbcd0; border-radius: 2px; margin: 14px auto; }
+    .card .brand-name { font-size: 0.68rem; font-weight: 800; color: #e07095; letter-spacing: 3px; }
+
+    .close-btn {
+      margin-top: 18px;
+      background: linear-gradient(135deg, #ff7aaa, #d92060);
+      color: #fff;
+      border: none;
+      padding: 11px 32px;
+      border-radius: 99px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 5px 16px rgba(217,32,96,0.38);
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+      display: block;
+      width: 100%;
+    }
+    .close-btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 2px 8px rgba(217,32,96,0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Loading Screen ───────────────────────── -->
+  <div id="loading-overlay">
+    <div class="loading-logo">FRONTLINE</div>
+    <div class="loading-sub">✦ Baby Souvenir ✦</div>
+    <div class="spinner"></div>
+    <div class="loading-note">Mohon izinkan akses kamera saat browser meminta</div>
+  </div>
+
+  <!-- ── AR Viewport ──────────────────────────── -->
+  <div id="ar-container"></div>
+
+  <!-- ── Header Brand ─────────────────────────── -->
+  <div id="header">
+    <div class="brand">FRONTLINE</div>
+    <div class="tagline">✦ Baby Souvenir AR Experience ✦</div>
+  </div>
+
+  <!-- ── Scan Instruction ─────────────────────── -->
+  <div id="scan-hint">
+    <div class="scan-pill">📸 Arahkan ke kartu souvenir</div>
+    <div class="scan-sub">Pastikan pencahayaan cukup &amp; kartu terlihat jelas</div>
+  </div>
+
+  <!-- ── Greeting Card ────────────────────────── -->
+  <div id="greeting">
+    <div class="card">
+      <span class="card-icon">🐴</span>
+      <h2>Selamat Datang!</h2>
+      <p>
+        Terima kasih sudah memilih <strong>Frontline</strong>
+        untuk momen spesial si kecil.<br><br>
+        Semoga menjadi kenangan manis yang selalu dikenang. 💕
+      </p>
+      <div class="divider"></div>
+      <div class="brand-name">FRONTLINE BABY SOUVENIR</div>
+      <button class="close-btn" id="close-btn">Tutup</button>
+    </div>
+  </div>
+
+  <!-- ── Audio Greeting (placeholder) ────────── -->
+  <!-- Ganti dengan file greeting.mp3 asli kamu -->
+  <audio id="greeting-audio" preload="auto">
+    <source src="./assets/audio/greeting.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- ── Three.js ─────────────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/examples/js/loaders/GLTFLoader.js"></script>
+  <!-- ── MindAR (Three.js edition) ────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const loadingEl  = document.getElementById('loading-overlay');
+      const scanHintEl = document.getElementById('scan-hint');
+      const greetingEl = document.getElementById('greeting');
+      const audioEl    = document.getElementById('greeting-audio');
+      const closeBtn   = document.getElementById('close-btn');
+
+      let hasGreeted = false;
+
+      function hideLoading() {
+        loadingEl.classList.add('hide');
+        setTimeout(() => loadingEl.remove(), 700);
+      }
+
+      function showError(msg) {
+        loadingEl.querySelector('.loading-note').textContent = msg;
+        loadingEl.querySelector('.spinner').style.display = 'none';
+      }
+
+      async function startAR() {
+        const mindarThree = new window.MINDAR.IMAGE.MindARThree({
+          container: document.getElementById('ar-container'),
+          imageTargetSrc: './assets/targets/marker.mind',
+          maxTrack: 1,
+          uiLoading: 'no',   // pakai custom loading screen
+          uiScanning: 'yes',
+          uiError: 'yes',
+        });
+
+        const { renderer, scene, camera } = mindarThree;
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // ── Lighting setup ──────────────────────
+        // Soft ambient fill
+        scene.add(new THREE.AmbientLight(0xffeef5, 2.2));
+
+        // Key light (warm pink-white dari atas-depan)
+        const keyLight = new THREE.DirectionalLight(0xfff0f5, 2.8);
+        keyLight.position.set(1, 3, 2);
+        scene.add(keyLight);
+
+        // Fill light (dari kiri bawah)
+        const fillLight = new THREE.DirectionalLight(0xffcce0, 1.4);
+        fillLight.position.set(-2, -0.5, 1.5);
+        scene.add(fillLight);
+
+        // Rim light (dari belakang, beri depth)
+        const rimLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        rimLight.position.set(0, -1.5, -2);
+        scene.add(rimLight);
+
+        // ── Image anchor ────────────────────────
+        const anchor = mindarThree.addAnchor(0);
+
+        // ── Load GLB model ──────────────────────
+        const loader = new THREE.GLTFLoader();
+        let horseModel = null;
+
+        loader.load(
+          './assets/models/rockinghorsgdel-v1.glb',
+
+          // onLoad
+          (gltf) => {
+            horseModel = gltf.scene;
+
+            // Auto-centre berdasarkan bounding box
+            const box    = new THREE.Box3().setFromObject(horseModel);
+            const centre = box.getCenter(new THREE.Vector3());
+            const size   = box.getSize(new THREE.Vector3());
+            horseModel.position.sub(centre);
+
+            // Auto-scale supaya muat proporsional di atas kartu
+            // (MindAR: lebar kartu ≈ 1 unit)
+            const maxDim     = Math.max(size.x, size.y, size.z);
+            const targetSize = 0.85;
+            horseModel.scale.setScalar(targetSize / maxDim);
+
+            // Angkat sedikit di atas permukaan kartu
+            horseModel.position.y += 0.12;
+
+            // Tambah sentuhan warna pink lembut (tidak timpa tekstur asli)
+            horseModel.traverse((child) => {
+              if (!child.isMesh) return;
+              const mats = Array.isArray(child.material)
+                ? child.material
+                : [child.material];
+              mats.forEach((mat) => {
+                if (mat.color) {
+                  mat.color.lerp(new THREE.Color(0xffb6c1), 0.08);
+                }
+              });
+            });
+
+            anchor.group.add(horseModel);
+          },
+
+          // onProgress (tidak perlu handle)
+          undefined,
+
+          // onError
+          (err) => {
+            console.warn('[Frontline AR] Gagal load model GLB:', err);
+          }
+        );
+
+        // ── AR Events ───────────────────────────
+        anchor.onTargetFound = () => {
+          scanHintEl.style.opacity = '0';
+
+          if (!hasGreeted) {
+            hasGreeted = true;
+            // Play audio — catatan: iOS butuh user gesture sebelumnya
+            audioEl.play().catch(() => {});
+            // Tampilkan greeting card setelah animasi AR settle
+            setTimeout(() => greetingEl.classList.add('show'), 750);
+          }
+        };
+
+        anchor.onTargetLost = () => {
+          scanHintEl.style.opacity = '1';
+        };
+
+        closeBtn.addEventListener('click', () => {
+          greetingEl.classList.remove('show');
+        });
+
+        // ── Animation loop ───────────────────────
+        let tick = 0;
+        renderer.setAnimationLoop(() => {
+          if (horseModel) {
+            tick += 0.022;
+            // Ayunan kuda goyang pada sumbu Z
+            horseModel.rotation.z = Math.sin(tick) * 0.09;
+            // Bobbing naik-turun halus
+            horseModel.position.y = 0.12 + Math.sin(tick * 0.55) * 0.014;
+          }
+          renderer.render(scene, camera);
+        });
+
+        // ── Start MindAR ────────────────────────
+        await mindarThree.start();
+        hideLoading();
+      }
+
+      startAR().catch((err) => {
+        console.error('[Frontline AR] Error:', err);
+        showError('Gagal memulai AR. Pastikan kamera diizinkan dan buka via HTTPS.');
+      });
+    })();
+  </script>
+
+</body>
+</html>
