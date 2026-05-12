@@ -7,7 +7,7 @@
 ## Ringkasan Project
 
 WebAR berbasis browser untuk bisnis souvenir bayi **Frontline**.  
-Alur customer: scan QR di kartu souvenir → browser terbuka → scan kartu fisik → karakter kuda goyang 3D pink muncul + suara greeting.
+Alur customer: scan QR di kartu souvenir → browser terbuka → scan kartu fisik → karakter kuda goyang 3D muncul di atas kartu + suara greeting.
 
 **Keunggulan utama:** Tidak perlu install aplikasi. Pure browser (HTTPS).
 
@@ -109,6 +109,10 @@ frontline-ar/
       <a-gltf-model auto-scale="size: {scale}">                        ← model GLB
 ```
 
+> ⚠️ **Jangan** tambah wrapper `<a-entity rotation="90 0 0">` di sini.  
+> MindAR image target: kartu di bidang XZ, **Y = normal kartu (atas)**. Model berdiri tegak secara default.  
+> Wrapper itu justru bikin posY bergerak sepanjang kartu & model miring. Sudah difix 2026-05-12.
+
 **Komponen `auto-scale`:**  
 Normalizes model: fit dalam `size` units, center horizontal, bottom geometri di y=0.
 
@@ -171,6 +175,26 @@ Admin panel: `http://localhost:3000/admin.html`
 
 ---
 
+## Design System UI (harus match hi.frontline.id)
+
+**Dark luxury gold** — bukan pink. Referensi: https://hi.frontline.id/
+
+| Token | Nilai | Fungsi |
+|---|---|---|
+| `--bg` | `#080807` | Background utama |
+| `--gold` | `#C8980A` | Aksen utama, tombol CTA |
+| `--gold2` | `#E2B830` | Gold lebih terang (highlight) |
+| `--gold-dim` | `#8A6A08` | Gold redup (border, divider) |
+| `--gold-bg` | `#110D02` | Dark gold tint (background chip) |
+| `--surface` | `#0F0E0B` | Card / overlay background |
+| `--border2` | `#2C2918` | Border subtle |
+| `--text` | `#EDE8DC` | Teks utama (cream) |
+| `--muted` | `#7A7260` | Teks sekunder |
+
+**Font:** `Gilda Display` (serif, heading/logo) + `DM Sans` (sans-serif, body) — Google Fonts.
+
+---
+
 ## Hal Penting yang Sudah Resolved (Jangan Diutak-atik)
 
 | Masalah | Solusi |
@@ -181,7 +205,9 @@ Admin panel: `http://localhost:3000/admin.html`
 | CDN jsDelivr tidak bisa diakses | Ganti ke **unpkg.com** untuk semua library AR |
 | Model Draco compressed | Tambah `DRACOLoader` dengan decoder dari gstatic |
 | Model amblas ke kartu | `auto-scale` taruh bottom model di y=0; URL param `posY` angkat ke atas |
+| Kuda muncul di depan kartu bukan di atas | Hapus wrapper `rotation="90 0 0"` — MindAR Y = normal kartu, model berdiri tegak by default |
+| UI warna pink tidak sesuai brand | Redesign ke dark gold theme (lihat Design System di atas) |
 
 ---
 
-*Last updated: 2026-05-11 | Working dir: C:\Users\ELVINA\ClaudeProjects\frontline-ar*
+*Last updated: 2026-05-12 | Working dir: C:\Users\ELVINA\ClaudeProjects\frontline-ar*
