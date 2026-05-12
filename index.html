@@ -6,14 +6,23 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Frontline — Baby AR Experience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --gold: #C8980A; --gold2: #E2B830; --gold-dim: #8A6A08;
+      --gold-bg: #110D02; --bg: #080807; --surface: #0F0E0B;
+      --border: #1E1C14; --border2: #2C2918;
+      --text: #EDE8DC; --muted: #7A7260;
+    }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #1a0010; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; overflow: hidden; width: 100vw; height: 100vh; }
+    body { background: var(--bg); font-family: 'DM Sans', system-ui, sans-serif; color: var(--text); overflow: hidden; width: 100vw; height: 100vh; }
 
     /* ── Overlay shell ──────────────────────── */
     .overlay {
       position: fixed; inset: 0; z-index: 20;
-      background: linear-gradient(160deg, #ff6b9d 0%, #ffacc7 48%, #fff0f5 100%);
+      background: var(--bg);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 40px 28px; text-align: center;
       opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
@@ -21,73 +30,76 @@
     .overlay.active { opacity: 1; pointer-events: auto; }
 
     /* ── Splash ─────────────────────────────── */
-    .splash-logo { font-size: 2.6rem; font-weight: 900; color: #fff; letter-spacing: 7px; text-shadow: 0 3px 14px rgba(0,0,0,0.18); }
-    .splash-sub  { font-size: 0.72rem; color: rgba(255,255,255,0.8); letter-spacing: 3px; margin-top: 6px; margin-bottom: 28px; }
-    .splash-horse { font-size: 5.5rem; line-height: 1; animation: float 3s ease-in-out infinite; margin-bottom: 24px; }
-    @keyframes float { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-14px) rotate(4deg); } }
-    .splash-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
-    .splash-desc  { font-size: 0.78rem; color: rgba(255,255,255,0.82); line-height: 1.65; max-width: 240px; margin-bottom: 36px; }
+    .splash-logo { font-family: 'Gilda Display', serif; font-size: 2.8rem; font-weight: 400; color: var(--gold); letter-spacing: 10px; }
+    .splash-divider { width: 160px; height: 1px; background: linear-gradient(to right, transparent, var(--gold-dim), transparent); margin: 12px auto; }
+    .splash-sub  { font-size: 0.62rem; color: var(--muted); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 28px; }
+    .splash-horse { font-size: 4.8rem; line-height: 1; animation: float 3s ease-in-out infinite; margin-bottom: 20px; filter: drop-shadow(0 4px 18px rgba(200,152,10,0.3)); }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-12px) rotate(4deg); } }
+    .splash-title { font-family: 'Gilda Display', serif; font-size: 1.05rem; font-weight: 400; color: var(--text); margin-bottom: 8px; }
+    .splash-desc  { font-size: 0.75rem; color: var(--muted); line-height: 1.7; max-width: 240px; margin-bottom: 32px; }
     .btn-start {
-      background: #fff; color: #c9205a; border: none; padding: 16px 40px;
-      border-radius: 99px; font-size: 1rem; font-weight: 800; cursor: pointer;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.14); transition: transform 0.15s, box-shadow 0.15s;
+      background: var(--gold); color: #080807; border: none; padding: 15px 44px;
+      border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
+      letter-spacing: 0.5px; cursor: pointer;
+      box-shadow: 0 4px 24px rgba(200,152,10,0.25); transition: transform 0.15s, background 0.2s;
     }
-    .btn-start:active  { transform: scale(0.96); box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
-    .btn-start:disabled { opacity: 0.55; cursor: not-allowed; }
-    .splash-note { font-size: 0.64rem; color: rgba(255,255,255,0.55); margin-top: 14px; }
+    .btn-start:active  { transform: scale(0.96); }
+    .btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
+    .splash-note { font-size: 0.62rem; color: var(--muted); margin-top: 12px; }
 
     /* ── Loading ────────────────────────────── */
-    .loading-logo { font-size: 1.9rem; font-weight: 900; color: #fff; letter-spacing: 6px; margin-bottom: 36px; }
-    .steps { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 270px; }
-    .step { display: flex; align-items: center; gap: 14px; font-size: 0.84rem; color: rgba(255,255,255,0.4); transition: color 0.3s; }
-    .step.active { color: #fff; font-weight: 600; }
-    .step.done   { color: rgba(255,255,255,0.8); }
+    .loading-logo { font-family: 'Gilda Display', serif; font-size: 2rem; font-weight: 400; color: var(--gold); letter-spacing: 8px; margin-bottom: 40px; }
+    .steps { display: flex; flex-direction: column; gap: 18px; width: 100%; max-width: 260px; }
+    .step { display: flex; align-items: center; gap: 14px; font-size: 0.82rem; color: var(--muted); transition: color 0.3s; }
+    .step.active { color: var(--text); font-weight: 500; }
+    .step.done   { color: rgba(237,232,220,0.55); }
     .step-dot {
-      width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2);
+      width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border2);
       display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s;
     }
-    .step.active .step-dot { border-color: rgba(255,255,255,0.85); }
+    .step.active .step-dot { border-color: var(--gold); }
     .step.active .step-dot::before {
       content: ''; width: 10px; height: 10px;
-      border: 2px solid transparent; border-top-color: #fff;
+      border: 2px solid transparent; border-top-color: var(--gold);
       border-radius: 50%; animation: spin 0.75s linear infinite; display: block;
     }
-    .step.done .step-dot { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.15); }
-    .step.done .step-dot::before { content: '✓'; animation: none; color: #fff; font-size: 0.72rem; font-weight: 800; width: auto; height: auto; border: none; display: block; }
+    .step.done .step-dot { border-color: var(--gold-dim); background: var(--gold-bg); }
+    .step.done .step-dot::before { content: '✓'; animation: none; color: var(--gold); font-size: 0.7rem; font-weight: 700; width: auto; height: auto; border: none; display: block; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Error ──────────────────────────────── */
-    .error-icon { font-size: 3.2rem; margin-bottom: 8px; }
-    .error-logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: 5px; margin-bottom: 20px; }
-    .error-msg  { font-size: 0.9rem; color: #fff; font-weight: 600; line-height: 1.6; max-width: 270px; margin-bottom: 8px; }
-    .error-hint { font-size: 0.7rem; color: rgba(255,255,255,0.65); max-width: 270px; line-height: 1.55; margin-bottom: 8px; }
-    .error-debug { font-size: 0.6rem; color: rgba(255,255,255,0.4); max-width: 280px; word-break: break-all; line-height: 1.4; margin-bottom: 20px; font-family: monospace; }
-    .btn-retry { background: rgba(255,255,255,0.18); color: #fff; border: 2px solid rgba(255,255,255,0.5); padding: 13px 36px; border-radius: 99px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-    .btn-retry:active { background: rgba(255,255,255,0.32); }
+    .error-icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .error-logo { font-family: 'Gilda Display', serif; font-size: 1.4rem; font-weight: 400; color: var(--gold); letter-spacing: 6px; margin-bottom: 24px; }
+    .error-msg  { font-size: 0.88rem; color: var(--text); font-weight: 500; line-height: 1.6; max-width: 270px; margin-bottom: 8px; }
+    .error-hint { font-size: 0.7rem; color: var(--muted); max-width: 270px; line-height: 1.6; margin-bottom: 8px; }
+    .error-debug { font-size: 0.58rem; color: rgba(122,114,96,0.45); max-width: 280px; word-break: break-all; line-height: 1.4; margin-bottom: 24px; font-family: monospace; }
+    .btn-retry { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); padding: 12px 36px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s; }
+    .btn-retry:active { background: var(--gold-bg); }
 
     /* ── AR UI layer ────────────────────────── */
     #ar-ui { position: fixed; inset: 0; z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.6s ease; }
     #ar-ui.show { opacity: 1; }
-    #ar-header { position: absolute; inset: 0 0 auto 0; padding: 22px 16px 44px; background: linear-gradient(to bottom, rgba(255,100,155,0.72) 0%, transparent 100%); text-align: center; }
-    .brand   { font-size: 1.45rem; font-weight: 900; color: #fff; letter-spacing: 5px; text-shadow: 0 2px 8px rgba(0,0,0,0.22); }
-    .tagline { font-size: 0.67rem; color: rgba(255,255,255,0.82); letter-spacing: 2px; margin-top: 3px; }
-    #scan-hint { position: absolute; inset: auto 0 36px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: opacity 0.4s ease; }
-    .scan-pill { background: rgba(210,45,95,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; font-size: 0.84rem; font-weight: 700; padding: 11px 26px; border-radius: 99px; box-shadow: 0 4px 16px rgba(210,45,95,0.35); animation: bob 2.2s ease-in-out infinite; }
-    .scan-sub { font-size: 0.67rem; color: rgba(255,255,255,0.72); text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+    #ar-header { position: absolute; inset: 0 0 auto 0; padding: 24px 16px 48px; background: linear-gradient(to bottom, rgba(8,8,7,0.78) 0%, transparent 100%); text-align: center; }
+    .brand   { font-family: 'Gilda Display', serif; font-size: 1.4rem; font-weight: 400; color: var(--gold); letter-spacing: 8px; text-shadow: 0 2px 12px rgba(0,0,0,0.7); }
+    .tagline { font-size: 0.6rem; color: rgba(200,152,10,0.6); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+    #scan-hint { position: absolute; inset: auto 0 40px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: opacity 0.4s ease; }
+    .scan-pill { background: rgba(8,8,7,0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--gold-dim); color: var(--gold2); font-size: 0.82rem; font-weight: 600; padding: 11px 28px; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); animation: bob 2.2s ease-in-out infinite; }
+    .scan-sub { font-size: 0.64rem; color: rgba(237,232,220,0.45); text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
     @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
     /* ── Greeting popup ─────────────────────── */
-    #greeting { position: fixed; inset: 0; z-index: 15; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+    #greeting { position: fixed; inset: 0; z-index: 15; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
     #greeting.show { opacity: 1; pointer-events: auto; }
-    .card { background: linear-gradient(150deg, #fff8fa 0%, #ffe4ee 100%); border: 1.5px solid #ffbcd0; border-radius: 26px; padding: 30px 32px 24px; max-width: 305px; width: 88%; text-align: center; box-shadow: 0 16px 48px rgba(210,45,95,0.22), 0 4px 12px rgba(0,0,0,0.1); transform: scale(0.88) translateY(12px); transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+    .card { background: var(--surface); border: 1px solid var(--border2); border-radius: 18px; padding: 32px 28px 24px; max-width: 305px; width: 88%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 0.5px var(--gold-dim); transform: scale(0.88) translateY(12px); transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
     #greeting.show .card { transform: scale(1) translateY(0); }
-    .card-icon   { font-size: 2.6rem; display: block; margin-bottom: 10px; }
-    .card h2     { font-size: 1.18rem; color: #c02060; font-weight: 800; margin-bottom: 8px; }
-    .card p      { font-size: 0.8rem; color: #7a5570; line-height: 1.65; }
-    .card-divider { width: 40px; height: 2px; background: #ffbcd0; border-radius: 2px; margin: 14px auto; }
-    .card-brand  { font-size: 0.68rem; font-weight: 800; color: #e07095; letter-spacing: 3px; }
-    .btn-close { margin-top: 18px; background: linear-gradient(135deg, #ff7aaa, #d92060); color: #fff; border: none; padding: 11px 32px; border-radius: 99px; font-size: 0.84rem; font-weight: 700; cursor: pointer; box-shadow: 0 5px 16px rgba(217,32,96,0.38); transition: transform 0.14s ease, box-shadow 0.14s ease; display: block; width: 100%; }
-    .btn-close:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(217,32,96,0.25); }
+    .card-icon   { font-size: 2.4rem; display: block; margin-bottom: 12px; }
+    .card h2     { font-family: 'Gilda Display', serif; font-size: 1.2rem; font-weight: 400; color: var(--gold2); letter-spacing: 1px; margin-bottom: 10px; }
+    .card p      { font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
+    .card p strong { color: var(--text); }
+    .card-divider { width: 40px; height: 1px; background: linear-gradient(to right, transparent, var(--gold-dim), transparent); margin: 16px auto; }
+    .card-brand  { font-size: 0.6rem; color: var(--gold-dim); letter-spacing: 4px; text-transform: uppercase; }
+    .btn-close { margin-top: 20px; background: var(--gold); color: #080807; border: none; padding: 11px 32px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 4px 16px rgba(200,152,10,0.2); transition: transform 0.14s ease, background 0.2s; display: block; width: 100%; }
+    .btn-close:active { transform: scale(0.96); }
 
     /* ── A-Frame scene ──────────────────────── */
     a-scene { position: fixed !important; inset: 0 !important; z-index: 0 !important; width: 100vw !important; height: 100vh !important; display: block; }
@@ -98,11 +110,12 @@
   <!-- Splash -->
   <div id="splash" class="overlay active">
     <div class="splash-logo">FRONTLINE</div>
-    <div class="splash-sub">✦ Baby Souvenir ✦</div>
+    <div class="splash-divider"></div>
+    <div class="splash-sub">Baby Souvenir &nbsp;·&nbsp; Est. 2007</div>
     <div class="splash-horse">🐴</div>
-    <div class="splash-title">Pengalaman AR Spesial</div>
-    <div class="splash-desc">Scan kartu souvenir kamu dan lihat kejutan ajaib untuk si kecil!</div>
-    <button class="btn-start" id="btn-start">✨ Mulai Pengalaman AR</button>
+    <div class="splash-title">Pengalaman AR Eksklusif</div>
+    <div class="splash-desc">Scan kartu souvenir kamu dan saksikan kejutan spesial untuk si kecil.</div>
+    <button class="btn-start" id="btn-start">Mulai Pengalaman AR</button>
     <div class="splash-note">Membutuhkan akses kamera</div>
   </div>
 
@@ -130,10 +143,10 @@
   <div id="ar-ui">
     <div id="ar-header">
       <div class="brand">FRONTLINE</div>
-      <div class="tagline">✦ Baby Souvenir AR Experience ✦</div>
+      <div class="tagline">Baby Souvenir &nbsp;·&nbsp; AR Experience</div>
     </div>
     <div id="scan-hint">
-      <div class="scan-pill">📸 Arahkan ke kartu souvenir</div>
+      <div class="scan-pill">Arahkan ke kartu souvenir</div>
       <div class="scan-sub">Pastikan pencahayaan cukup &amp; kartu terlihat jelas</div>
     </div>
   </div>
@@ -142,10 +155,10 @@
   <div id="greeting">
     <div class="card">
       <span class="card-icon">🐴</span>
-      <h2>Selamat Datang!</h2>
-      <p>Terima kasih sudah memilih <strong>Frontline</strong> untuk momen spesial si kecil.<br><br>Semoga menjadi kenangan manis yang selalu dikenang. 💕</p>
+      <h2>Selamat Datang</h2>
+      <p>Terima kasih sudah memilih <strong>Frontline</strong> untuk momen spesial si kecil.<br><br>Semoga menjadi kenangan manis yang selalu dikenang.</p>
       <div class="card-divider"></div>
-      <div class="card-brand">FRONTLINE BABY SOUVENIR</div>
+      <div class="card-brand">Frontline Baby Souvenir &nbsp;·&nbsp; Est. 2007</div>
       <button class="btn-close" id="btn-close">Tutup</button>
     </div>
   </div>
