@@ -124,8 +124,7 @@
     <div class="logo-text" style="display:none">FRONTLINE</div>
     <div class="splash-divider"></div>
     <div class="splash-sub">Baby Souvenir &nbsp;·&nbsp; Est. 2007</div>
-    <div class="splash-horse">🐴</div>
-    <div class="splash-title">Your Exclusive AR Experience</div>
+    <div class="splash-title" style="margin-top:8px">Your Exclusive AR Experience</div>
     <div class="splash-desc">Scan your souvenir card and witness a special surprise crafted for your little one.</div>
     <button class="btn-start" id="btn-start">Start AR Experience</button>
     <div class="splash-note">Camera access required</div>
@@ -200,8 +199,26 @@
     const MARKER_URL = window.location.origin + '/assets/targets/marker.mind';
     const MODEL_URL  = window.location.origin + '/assets/models/rockinghorsgdel-v1.glb';
 
-    // Pre-fetch marker on page load so it's cached when AR starts
-    fetch(MARKER_URL, { method: 'HEAD' }).catch(() => {});
+    // Pre-fetch marker (full GET so browser caches the body for MindAR Web Worker)
+    fetch(MARKER_URL).catch(() => {});
+
+    // Pre-warm MindAR: insert hidden scene with autoStart:false so WASM compiles
+    // during splash screen — no camera permission needed
+    let _warmup = null;
+    function preWarm() {
+      if (_warmup || !window.AFRAME || !window.MINDAR) return;
+      _warmup = document.createElement('a-scene');
+      _warmup.setAttribute('mindar-image',
+        `imageTargetSrc: ${MARKER_URL}; autoStart: false; uiLoading: no; uiScanning: no; uiError: no`);
+      _warmup.setAttribute('vr-mode-ui', 'enabled: false');
+      _warmup.setAttribute('device-orientation-permission-ui', 'enabled: false');
+      _warmup.setAttribute('embedded', '');
+      _warmup.style.cssText = 'position:fixed;width:1px;height:1px;z-index:-999;opacity:0;pointer-events:none';
+      _warmup.innerHTML = '<a-camera active="false" look-controls="enabled:false"></a-camera>';
+      document.body.appendChild(_warmup);
+    }
+    if (document.readyState === 'complete') preWarm();
+    else window.addEventListener('load', preWarm);
 
     /* ── Auto-scale component ─────────────────
        Scales model to fit inside `size` units, center horizontal, bottom at y=0
@@ -283,6 +300,11 @@
       }
 
       function removeScene() {
+        // Remove warmup scene first
+        if (_warmup && _warmup.parentNode) {
+          try { _warmup.parentNode.removeChild(_warmup); } catch (_e) {}
+          _warmup = null;
+        }
         if (arScene && arScene.parentNode) {
           try { arScene.systems?.['mindar-image-system']?.stop(); } catch (_) {}
           arScene.parentNode.removeChild(arScene);
