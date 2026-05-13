@@ -125,7 +125,7 @@
     <div class="steps">
       <div class="step" id="step-lib"><div class="step-dot"></div><span>Memuat library AR</span></div>
       <div class="step" id="step-asset"><div class="step-dot"></div><span>Memeriksa aset</span></div>
-      <div class="step" id="step-cam"><div class="step-dot"></div><span>Menyiapkan kamera</span></div>
+      <div class="step" id="step-cam"><div class="step-dot"></div><span>Menyiapkan kamera <span id="step-cam-hint" style="font-size:0.7em;opacity:0.55">(bisa 20–40 detik)</span></span></div>
     </div>
   </div>
 
@@ -397,10 +397,10 @@
             showError(
               'AR tidak merespons.',
               'Coba refresh halaman. Kalau masalah berlanjut, coba ganti browser.',
-              'arReady timeout 15s'
+              'arReady timeout 45s'
             );
           }
-        }, 15000);
+        }, 45000);
 
         /* Events */
         arScene.addEventListener('arReady', () => {
