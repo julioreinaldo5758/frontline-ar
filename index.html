@@ -192,10 +192,14 @@
           this.el.addEventListener('model-loaded', () => {
             const obj = this.el.getObject3D('mesh');
             if (!obj) return;
-            const T   = AFRAME.THREE;
-            // Clone supaya bbox diukur di local space model sendiri,
-            // tidak terpengaruh rotasi parent entity (config/anim group)
-            const box = new T.Box3().setFromObject(obj.clone(true));
+            const T      = AFRAME.THREE;
+            // Ukur bbox di local space obj sendiri: sementara pindah ke group kosong
+            // supaya world matrix = identity → tidak terpengaruh rotasi parent entity
+            const par    = obj.parent;
+            const temp   = new T.Group();
+            temp.add(obj);
+            const box    = new T.Box3().setFromObject(obj);
+            par.add(obj); // restore (otomatis remove dari temp)
             const dim = box.getSize(new T.Vector3());
             const ctr = box.getCenter(new T.Vector3());
             const max = Math.max(dim.x, dim.y, dim.z);
