@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -29,11 +29,22 @@
     }
     .overlay.active { opacity: 1; pointer-events: auto; }
 
+    /* ── Logo image ─────────────────────────── */
+    .logo-img {
+      height: 44px; width: auto; object-fit: contain;
+      filter: brightness(0) invert(1);
+      margin-bottom: 0;
+    }
+    .logo-img.gold { filter: brightness(0) saturate(100%) invert(62%) sepia(85%) saturate(500%) hue-rotate(5deg) brightness(95%); }
+    .logo-text {
+      font-family: 'Gilda Display', serif; font-size: 2.2rem; font-weight: 400;
+      color: var(--gold); letter-spacing: 10px;
+    }
+
     /* ── Splash ─────────────────────────────── */
-    .splash-logo { font-family: 'Gilda Display', serif; font-size: 2.8rem; font-weight: 400; color: var(--gold); letter-spacing: 10px; }
-    .splash-divider { width: 160px; height: 1px; background: linear-gradient(to right, transparent, var(--gold-dim), transparent); margin: 12px auto; }
-    .splash-sub  { font-size: 0.62rem; color: var(--muted); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 28px; }
-    .splash-horse { font-size: 4.8rem; line-height: 1; animation: float 3s ease-in-out infinite; margin-bottom: 20px; filter: drop-shadow(0 4px 18px rgba(200,152,10,0.3)); }
+    .splash-divider { width: 160px; height: 1px; background: linear-gradient(to right, transparent, var(--gold-dim), transparent); margin: 14px auto; }
+    .splash-sub  { font-size: 0.6rem; color: var(--muted); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 32px; }
+    .splash-horse { font-size: 4.4rem; line-height: 1; animation: float 3s ease-in-out infinite; margin-bottom: 20px; filter: drop-shadow(0 4px 18px rgba(200,152,10,0.3)); }
     @keyframes float { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-12px) rotate(4deg); } }
     .splash-title { font-family: 'Gilda Display', serif; font-size: 1.05rem; font-weight: 400; color: var(--text); margin-bottom: 8px; }
     .splash-desc  { font-size: 0.75rem; color: var(--muted); line-height: 1.7; max-width: 240px; margin-bottom: 32px; }
@@ -48,40 +59,37 @@
     .splash-note { font-size: 0.62rem; color: var(--muted); margin-top: 12px; }
 
     /* ── Loading ────────────────────────────── */
-    .loading-logo { font-family: 'Gilda Display', serif; font-size: 2rem; font-weight: 400; color: var(--gold); letter-spacing: 8px; margin-bottom: 40px; }
-    .steps { display: flex; flex-direction: column; gap: 18px; width: 100%; max-width: 260px; }
-    .step { display: flex; align-items: center; gap: 14px; font-size: 0.82rem; color: var(--muted); transition: color 0.3s; }
-    .step.active { color: var(--text); font-weight: 500; }
-    .step.done   { color: rgba(237,232,220,0.55); }
-    .step-dot {
-      width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border2);
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s;
+    .loading-tagline {
+      font-family: 'Gilda Display', serif; font-size: 1.05rem; font-weight: 400;
+      color: var(--text); margin-top: 28px; margin-bottom: 6px; letter-spacing: 0.5px;
     }
-    .step.active .step-dot { border-color: var(--gold); }
-    .step.active .step-dot::before {
-      content: ''; width: 10px; height: 10px;
-      border: 2px solid transparent; border-top-color: var(--gold);
-      border-radius: 50%; animation: spin 0.75s linear infinite; display: block;
+    .loading-sub { font-size: 0.68rem; color: var(--muted); margin-bottom: 32px; }
+    .dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 28px; }
+    .dots span {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--gold);
+      animation: pulse 1.4s ease-in-out infinite;
     }
-    .step.done .step-dot { border-color: var(--gold-dim); background: var(--gold-bg); }
-    .step.done .step-dot::before { content: '✓'; animation: none; color: var(--gold); font-size: 0.7rem; font-weight: 700; width: auto; height: auto; border: none; display: block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse { 0%,80%,100% { opacity: 0.15; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1.2); } }
+    .loading-note { font-size: 0.6rem; color: rgba(122,114,96,0.5); letter-spacing: 1px; }
 
     /* ── Error ──────────────────────────────── */
-    .error-icon { font-size: 2.8rem; margin-bottom: 12px; }
-    .error-logo { font-family: 'Gilda Display', serif; font-size: 1.4rem; font-weight: 400; color: var(--gold); letter-spacing: 6px; margin-bottom: 24px; }
-    .error-msg  { font-size: 0.88rem; color: var(--text); font-weight: 500; line-height: 1.6; max-width: 270px; margin-bottom: 8px; }
-    .error-hint { font-size: 0.7rem; color: var(--muted); max-width: 270px; line-height: 1.6; margin-bottom: 8px; }
-    .error-debug { font-size: 0.58rem; color: rgba(122,114,96,0.45); max-width: 280px; word-break: break-all; line-height: 1.4; margin-bottom: 24px; font-family: monospace; }
+    .error-icon { font-size: 2.4rem; margin-bottom: 10px; }
+    .error-logo-wrap { margin-bottom: 20px; }
+    .error-msg  { font-size: 0.88rem; color: var(--text); font-weight: 500; line-height: 1.6; max-width: 270px; margin-bottom: 6px; }
+    .error-hint { font-size: 0.7rem; color: var(--muted); max-width: 270px; line-height: 1.6; margin-bottom: 6px; }
+    .error-debug { font-size: 0.58rem; color: rgba(122,114,96,0.4); max-width: 280px; word-break: break-all; line-height: 1.4; margin-bottom: 24px; font-family: monospace; }
     .btn-retry { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); padding: 12px 36px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s; }
     .btn-retry:active { background: var(--gold-bg); }
 
     /* ── AR UI layer ────────────────────────── */
     #ar-ui { position: fixed; inset: 0; z-index: 10; pointer-events: none; opacity: 0; transition: opacity 0.6s ease; }
     #ar-ui.show { opacity: 1; }
-    #ar-header { position: absolute; inset: 0 0 auto 0; padding: 24px 16px 48px; background: linear-gradient(to bottom, rgba(8,8,7,0.78) 0%, transparent 100%); text-align: center; }
-    .brand   { font-family: 'Gilda Display', serif; font-size: 1.4rem; font-weight: 400; color: var(--gold); letter-spacing: 8px; text-shadow: 0 2px 12px rgba(0,0,0,0.7); }
-    .tagline { font-size: 0.6rem; color: rgba(200,152,10,0.6); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+    #ar-header { position: absolute; inset: 0 0 auto 0; padding: 20px 16px 44px; background: linear-gradient(to bottom, rgba(8,8,7,0.78) 0%, transparent 100%); text-align: center; }
+    .ar-logo-img { height: 28px; width: auto; object-fit: contain; filter: brightness(0) saturate(100%) invert(62%) sepia(85%) saturate(500%) hue-rotate(5deg) brightness(95%); }
+    .ar-logo-text { font-family: 'Gilda Display', serif; font-size: 1.2rem; color: var(--gold); letter-spacing: 8px; text-shadow: 0 2px 12px rgba(0,0,0,0.7); }
+    .tagline { font-size: 0.58rem; color: rgba(200,152,10,0.6); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
     #scan-hint { position: absolute; inset: auto 0 40px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: opacity 0.4s ease; }
     .scan-pill { background: rgba(8,8,7,0.82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--gold-dim); color: var(--gold2); font-size: 0.82rem; font-weight: 600; padding: 11px 28px; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); animation: bob 2.2s ease-in-out infinite; }
     .scan-sub { font-size: 0.64rem; color: rgba(237,232,220,0.45); text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
@@ -92,7 +100,9 @@
     #greeting.show { opacity: 1; pointer-events: auto; }
     .card { background: var(--surface); border: 1px solid var(--border2); border-radius: 18px; padding: 32px 28px 24px; max-width: 305px; width: 88%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 0.5px var(--gold-dim); transform: scale(0.88) translateY(12px); transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
     #greeting.show .card { transform: scale(1) translateY(0); }
-    .card-icon   { font-size: 2.4rem; display: block; margin-bottom: 12px; }
+    .card-logo-wrap { margin-bottom: 16px; }
+    .card-logo-img  { height: 24px; width: auto; filter: brightness(0) saturate(100%) invert(62%) sepia(85%) saturate(500%) hue-rotate(5deg) brightness(95%); }
+    .card-logo-text { font-family: 'Gilda Display', serif; font-size: 1rem; color: var(--gold); letter-spacing: 6px; }
     .card h2     { font-family: 'Gilda Display', serif; font-size: 1.2rem; font-weight: 400; color: var(--gold2); letter-spacing: 1px; margin-bottom: 10px; }
     .card p      { font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
     .card p strong { color: var(--text); }
@@ -109,57 +119,70 @@
 
   <!-- Splash -->
   <div id="splash" class="overlay active">
-    <div class="splash-logo">FRONTLINE</div>
+    <img src="https://hi.frontline.id/hi/frontline_LOGO.png" class="logo-img" alt="Frontline"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div class="logo-text" style="display:none">FRONTLINE</div>
     <div class="splash-divider"></div>
     <div class="splash-sub">Baby Souvenir &nbsp;·&nbsp; Est. 2007</div>
     <div class="splash-horse">🐴</div>
-    <div class="splash-title">Pengalaman AR Eksklusif</div>
-    <div class="splash-desc">Scan kartu souvenir kamu dan saksikan kejutan spesial untuk si kecil.</div>
-    <button class="btn-start" id="btn-start">Mulai Pengalaman AR</button>
-    <div class="splash-note">Membutuhkan akses kamera</div>
+    <div class="splash-title">Your Exclusive AR Experience</div>
+    <div class="splash-desc">Scan your souvenir card and witness a special surprise crafted for your little one.</div>
+    <button class="btn-start" id="btn-start">Start AR Experience</button>
+    <div class="splash-note">Camera access required</div>
   </div>
 
   <!-- Loading -->
   <div id="loading" class="overlay">
-    <div class="loading-logo">FRONTLINE</div>
-    <div class="steps">
-      <div class="step" id="step-lib"><div class="step-dot"></div><span>Memuat library AR</span></div>
-      <div class="step" id="step-asset"><div class="step-dot"></div><span>Memeriksa aset</span></div>
-      <div class="step" id="step-cam"><div class="step-dot"></div><span>Menyiapkan kamera <span id="step-cam-hint" style="font-size:0.7em;opacity:0.55">(bisa 20–40 detik)</span></span></div>
-    </div>
+    <img src="https://hi.frontline.id/hi/frontline_LOGO.png" class="logo-img gold" alt="Frontline"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div class="logo-text" style="display:none">FRONTLINE</div>
+    <div class="loading-tagline">Preparing your AR moment</div>
+    <div class="loading-sub">Hold tight — magic is loading</div>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="loading-note">May take up to 30 seconds on first load</div>
   </div>
 
   <!-- Error -->
   <div id="error" class="overlay">
     <div class="error-icon">⚠️</div>
-    <div class="error-logo">FRONTLINE</div>
+    <div class="error-logo-wrap">
+      <img src="https://hi.frontline.id/hi/frontline_LOGO.png" class="logo-img" alt="Frontline" style="height:28px"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div class="logo-text" style="display:none;font-size:1.2rem;letter-spacing:6px">FRONTLINE</div>
+    </div>
     <p class="error-msg"   id="error-msg"></p>
     <p class="error-hint"  id="error-hint"></p>
     <p class="error-debug" id="error-debug"></p>
-    <button class="btn-retry" id="btn-retry">↺ Coba Lagi</button>
+    <button class="btn-retry" id="btn-retry">↺ Try Again</button>
   </div>
 
   <!-- AR UI -->
   <div id="ar-ui">
     <div id="ar-header">
-      <div class="brand">FRONTLINE</div>
+      <img src="https://hi.frontline.id/hi/frontline_LOGO.png" class="ar-logo-img" alt="Frontline"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <div class="ar-logo-text" style="display:none">FRONTLINE</div>
       <div class="tagline">Baby Souvenir &nbsp;·&nbsp; AR Experience</div>
     </div>
     <div id="scan-hint">
-      <div class="scan-pill">Arahkan ke kartu souvenir</div>
-      <div class="scan-sub">Pastikan pencahayaan cukup &amp; kartu terlihat jelas</div>
+      <div class="scan-pill">Point at your souvenir card</div>
+      <div class="scan-sub">Good lighting &amp; keep the card fully visible</div>
     </div>
   </div>
 
   <!-- Greeting popup -->
   <div id="greeting">
     <div class="card">
-      <span class="card-icon">🐴</span>
-      <h2>Selamat Datang</h2>
-      <p>Terima kasih sudah memilih <strong>Frontline</strong> untuk momen spesial si kecil.<br><br>Semoga menjadi kenangan manis yang selalu dikenang.</p>
+      <div class="card-logo-wrap">
+        <img src="https://hi.frontline.id/hi/frontline_LOGO.png" class="card-logo-img" alt="Frontline"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <div class="card-logo-text" style="display:none">FRONTLINE</div>
+      </div>
+      <h2>Welcome</h2>
+      <p>Thank you for choosing <strong>Frontline</strong> for this special moment.<br><br>May this be a cherished memory your little one carries forever.</p>
       <div class="card-divider"></div>
       <div class="card-brand">Frontline Baby Souvenir &nbsp;·&nbsp; Est. 2007</div>
-      <button class="btn-close" id="btn-close">Tutup</button>
+      <button class="btn-close" id="btn-close">Close</button>
     </div>
   </div>
 
@@ -167,10 +190,6 @@
     <source src="./assets/audio/greeting.mp3" type="audio/mpeg">
   </audio>
 
-  <!--
-    Load A-Frame + MindAR via unpkg (npm's official CDN, berbeda dari jsDelivr).
-    onerror diset supaya kita bisa deteksi kalau CDN tidak bisa diakses.
-  -->
   <script>window._loadErr = {};</script>
   <script src="https://unpkg.com/aframe@1.4.2/dist/aframe.min.js"
           onerror="window._loadErr.aframe = true"></script>
@@ -178,14 +197,16 @@
           onerror="window._loadErr.mindar = true"></script>
 
   <script>
+    const MARKER_URL = window.location.origin + '/assets/targets/marker.mind';
+    const MODEL_URL  = window.location.origin + '/assets/models/rockinghorsgdel-v1.glb';
+
+    // Pre-fetch marker on page load so it's cached when AR starts
+    fetch(MARKER_URL, { method: 'HEAD' }).catch(() => {});
+
     /* ── Auto-scale component ─────────────────
-       Scales model to fit inside `size` units
-       (MindAR target width ≈ 1 unit)
+       Scales model to fit inside `size` units, center horizontal, bottom at y=0
     ─────────────────────────────────────────── */
     if (window.AFRAME) {
-      // Auto-scale: fit model inside `size` units, centre it, bottom at y=0
-      // Lifting above the card is controlled by the wrapper entity's position
-      // (set via URL params in getConfig below)
       AFRAME.registerComponent('auto-scale', {
         schema: { size: { default: 0.85 } },
         init: function () {
@@ -200,7 +221,6 @@
             if (!max) return;
             const s = this.data.size / max;
             this.el.setAttribute('scale', { x: s, y: s, z: s });
-            // Centre horizontally; place geometric bottom at y=0
             this.el.setAttribute('position', {
               x: -ctr.x * s,
               y: (dim.y * 0.5 - ctr.y) * s,
@@ -211,7 +231,7 @@
       });
     }
 
-    /* ── URL config (from admin panel) ────────── */
+    /* ── URL config ───────────────────────────── */
     function getConfig() {
       const p    = new URLSearchParams(window.location.search);
       const num  = (k, d) => { const v = p.get(k); return v !== null ? parseFloat(v) : d; };
@@ -237,19 +257,16 @@
     (() => {
       'use strict';
 
-      const splashEl    = document.getElementById('splash');
-      const loadingEl   = document.getElementById('loading');
-      const errorEl     = document.getElementById('error');
-      const arUiEl      = document.getElementById('ar-ui');
-      const greetingEl  = document.getElementById('greeting');
-      const scanHintEl  = document.getElementById('scan-hint');
-      const audioEl     = document.getElementById('greeting-audio');
-      const errorMsgEl  = document.getElementById('error-msg');
-      const errorHintEl = document.getElementById('error-hint');
-      const errorDbgEl  = document.getElementById('error-debug');
-      const stepLib     = document.getElementById('step-lib');
-      const stepAsset   = document.getElementById('step-asset');
-      const stepCam     = document.getElementById('step-cam');
+      const splashEl   = document.getElementById('splash');
+      const loadingEl  = document.getElementById('loading');
+      const errorEl    = document.getElementById('error');
+      const arUiEl     = document.getElementById('ar-ui');
+      const greetingEl = document.getElementById('greeting');
+      const scanHintEl = document.getElementById('scan-hint');
+      const audioEl    = document.getElementById('greeting-audio');
+      const errorMsgEl = document.getElementById('error-msg');
+      const errorHintEl= document.getElementById('error-hint');
+      const errorDbgEl = document.getElementById('error-debug');
 
       let hasGreeted = false;
       let arScene    = null;
@@ -258,16 +275,13 @@
         [splashEl, loadingEl, errorEl].forEach(el => el.classList.remove('active'));
         if (id) document.getElementById(id).classList.add('active');
       }
-      function setStep(el, state) { el.className = 'step' + (state ? ' ' + state : ''); }
       function showError(msg, hint, debug) {
         errorMsgEl.textContent  = msg;
         errorHintEl.textContent = hint  || '';
         errorDbgEl.textContent  = debug || '';
         showScreen('error');
       }
-      const paint = () => new Promise(r => setTimeout(r, 80));
 
-      /* ── Remove old A-Frame scene if any ─── */
       function removeScene() {
         if (arScene && arScene.parentNode) {
           try { arScene.systems?.['mindar-image-system']?.stop(); } catch (_) {}
@@ -276,103 +290,37 @@
         }
       }
 
-      /* ── Main flow ──────────────────────── */
       async function startAR() {
         showScreen('loading');
-        [stepLib, stepAsset, stepCam].forEach(s => setStep(s, ''));
 
-        /* Step 1 — library check ───────────── */
-        setStep(stepLib, 'active');
-        await paint();
+        // Library check
+        if (window._loadErr.aframe) return showError('Failed to load A-Frame.', 'CDN unreachable on your network.', 'unpkg.com/aframe@1.4.2 — FAILED');
+        if (window._loadErr.mindar) return showError('Failed to load MindAR.', 'CDN unreachable on your network.', 'unpkg.com/mind-ar@1.2.5 — FAILED');
+        if (!window.AFRAME || !window.MINDAR) return showError('AR library unavailable.', 'Try refreshing or switching network (WiFi ↔ Data).', `AFRAME=${!!window.AFRAME} MINDAR=${!!window.MINDAR}`);
 
-        if (window._loadErr.aframe) {
-          return showError(
-            'Gagal memuat A-Frame.',
-            'CDN tidak bisa diakses dari jaringan kamu.',
-            'unpkg.com/aframe@1.4.2 — FAILED'
-          );
-        }
-        if (window._loadErr.mindar) {
-          return showError(
-            'Gagal memuat MindAR.',
-            'CDN tidak bisa diakses dari jaringan kamu.',
-            'unpkg.com/mind-ar@1.2.5 — FAILED'
-          );
-        }
-        if (!window.AFRAME || !window.MINDAR) {
-          return showError(
-            'Library AR tidak tersedia.',
-            'Coba refresh halaman atau ganti jaringan (WiFi ↔ Data).',
-            `AFRAME=${!!window.AFRAME} MINDAR=${!!window.MINDAR}`
-          );
-        }
-        setStep(stepLib, 'done');
-
-        /* Step 2 — verify marker ───────────── */
-        setStep(stepAsset, 'active');
-        await paint();
-
-        const markerUrl = window.location.origin + '/assets/targets/marker.mind';
-        const modelUrl  = window.location.origin + '/assets/models/rockinghorsgdel-v1.glb';
-
+        // Camera permission
         try {
-          const r = await fetch(markerUrl, { method: 'HEAD' });
-          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+          s.getTracks().forEach(t => t.stop());
         } catch (e) {
-          return showError(
-            'File marker tidak ditemukan.',
-            'Hubungi Frontline Baby Souvenir untuk bantuan.',
-            e.message
-          );
-        }
-        setStep(stepAsset, 'done');
-
-        /* Step 3a — request camera permission explicitly ─────
-           Harus dilakukan di sini (masih dalam user-gesture context)
-           supaya browser tidak silent-block getUserMedia          */
-        setStep(stepCam, 'active');
-        await paint();
-
-        try {
-          const testStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: 'environment' } }
-          });
-          // Izin diberikan — stop stream, MindAR akan buat stream sendiri
-          testStream.getTracks().forEach(t => t.stop());
-        } catch (camErr) {
-          const n = (camErr.name || '').toLowerCase();
-          if (n.includes('notallowed') || n.includes('permission') || n.includes('denied')) {
-            return showError(
-              'Izin kamera ditolak.',
-              'Ketuk ikon gembok / kamera di address bar, aktifkan izin kamera, lalu coba lagi.',
-              camErr.name
-            );
-          }
-          if (n.includes('notfound') || n.includes('notreadable')) {
-            return showError(
-              'Kamera tidak ditemukan.',
-              'Pastikan kamera tidak dipakai aplikasi lain.',
-              camErr.name
-            );
-          }
-          return showError('Kamera tidak dapat diakses.', camErr.message, camErr.name);
+          const n = (e.name || '').toLowerCase();
+          if (n.includes('notallowed') || n.includes('permission') || n.includes('denied'))
+            return showError('Camera permission denied.', 'Tap the lock / camera icon in the address bar, allow camera access, then try again.', e.name);
+          if (n.includes('notfound') || n.includes('notreadable'))
+            return showError('Camera not found.', 'Make sure no other app is using the camera.', e.name);
+          return showError('Cannot access camera.', e.message, e.name);
         }
 
-        /* Step 3b — build A-Frame scene ───── */
+        // Build A-Frame scene
         removeScene();
-
         arScene = document.createElement('a-scene');
-        arScene.setAttribute('mindar-image',
-          `imageTargetSrc: ${markerUrl}; autoStart: true; uiLoading: no; uiScanning: yes; uiError: no; maxTrack: 1`
-        );
+        arScene.setAttribute('mindar-image', `imageTargetSrc: ${MARKER_URL}; autoStart: true; uiLoading: no; uiScanning: yes; uiError: no; maxTrack: 1`);
         arScene.setAttribute('color-space', 'sRGB');
         arScene.setAttribute('renderer', 'colorManagement: true');
         arScene.setAttribute('embedded', '');
         arScene.setAttribute('vr-mode-ui', 'enabled: false');
         arScene.setAttribute('device-orientation-permission-ui', 'enabled: false');
 
-        // Tidak pakai <a-assets> preloading — model load langsung di entity
-        // supaya tidak block scene initialization
         const cfg      = getConfig();
         const rockAnim = cfg.rockOn
           ? `animation__rock="property: rotation; from: 0 0 -${cfg.rockAmp}; to: 0 0 ${cfg.rockAmp}; dur: ${cfg.rockDur}; dir: alternate; loop: true; easing: easeInOutSine"`
@@ -385,27 +333,20 @@
           <a-entity id="ar-target" mindar-image-target="targetIndex: 0">
             <a-entity position="${cfg.posX} ${cfg.posY} ${cfg.posZ}" rotation="${cfg.rotX} ${cfg.rotY} ${cfg.rotZ}">
               <a-entity ${rockAnim} ${bobAnim}>
-                <a-gltf-model src="${modelUrl}" auto-scale="size: ${cfg.scale}"></a-gltf-model>
+                <a-gltf-model src="${MODEL_URL}" auto-scale="size: ${cfg.scale}"></a-gltf-model>
               </a-entity>
             </a-entity>
           </a-entity>
         `;
 
-        /* Timeout — kalau arReady tidak muncul dalam 15 detik, tampilkan error */
         const arTimeout = setTimeout(() => {
           if (loadingEl.classList.contains('active')) {
-            showError(
-              'AR tidak merespons.',
-              'Coba refresh halaman. Kalau masalah berlanjut, coba ganti browser.',
-              'arReady timeout 45s'
-            );
+            showError('AR is not responding.', 'Try refreshing. If the issue persists, try a different browser.', 'arReady timeout 30s');
           }
-        }, 45000);
+        }, 30000);
 
-        /* Events */
         arScene.addEventListener('arReady', () => {
           clearTimeout(arTimeout);
-          setStep(stepCam, 'done');
           showScreen(null);
           arUiEl.classList.add('show');
 
@@ -425,18 +366,15 @@
           clearTimeout(arTimeout);
           const detail = evt.detail || {};
           const msg = (detail.message || detail.name || JSON.stringify(detail) || '').toLowerCase();
-          if (msg.includes('denied') || msg.includes('permission') || msg.includes('notallowed')) {
-            showError('Izin kamera ditolak.', 'Aktifkan kamera di pengaturan browser lalu coba lagi.', msg);
-          } else {
-            showError('Gagal memulai AR.', 'Coba refresh halaman.', msg);
-          }
+          if (msg.includes('denied') || msg.includes('permission') || msg.includes('notallowed'))
+            showError('Camera permission denied.', 'Allow camera access in browser settings, then try again.', msg);
+          else
+            showError('Failed to start AR.', 'Try refreshing the page.', msg);
         });
 
-        /* Insert → triggers A-Frame init */
         document.body.insertBefore(arScene, document.body.firstChild);
       }
 
-      /* ── Button handlers ─────────────────── */
       document.getElementById('btn-start').addEventListener('click', startAR);
 
       document.getElementById('btn-retry').addEventListener('click', () => {
