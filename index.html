@@ -193,7 +193,9 @@
             const obj = this.el.getObject3D('mesh');
             if (!obj) return;
             const T   = AFRAME.THREE;
-            const box = new T.Box3().setFromObject(obj);
+            // Clone supaya bbox diukur di local space model sendiri,
+            // tidak terpengaruh rotasi parent entity (config/anim group)
+            const box = new T.Box3().setFromObject(obj.clone(true));
             const dim = box.getSize(new T.Vector3());
             const ctr = box.getCenter(new T.Vector3());
             const max = Math.max(dim.x, dim.y, dim.z);
